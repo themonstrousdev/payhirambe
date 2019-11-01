@@ -448,6 +448,7 @@ class APIController extends Controller
     $result['account_information'] = app('Increment\Account\Http\AccountInformationController')->getAccountInformation($accountId);
     $result['account_profile'] = app('Increment\Account\Http\AccountProfileController')->getAccountProfile($accountId);
     $result['notification_settings'] = app('App\Http\Controllers\NotificationSettingController')->getNotificationSettings($accountId);
+    $result['sub_account'] = app('Increment\Account\Http\SubAccountController')->retrieveByParams('member', $accountId);
     return $result;
   }
 

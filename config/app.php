@@ -176,6 +176,7 @@ return [
         Increment\Common\Image\ImageServiceProvider::class,
         Increment\Common\Tutorial\TutorialServiceProvider::class,
         Increment\Common\Notification\NotificationServiceProvider::class,
+        Increment\Common\Invitation\InvitationServiceProvider::class,
         Increment\Messenger\MessengerServiceProvider::class,
 
         /*
