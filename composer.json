@@ -35,6 +35,7 @@
             "Increment\\Common\\Comment\\": "packages/increment/common/comment/src/",
             "Increment\\Common\\Rating\\": "packages/increment/common/rating/src/",
             "Increment\\Common\\Image\\": "packages/increment/common/image/src/",
+            "Increment\\Common\\Invitation\\": "packages/increment/common/invitation/src/",
             "Increment\\Common\\Tutorial\\": "packages/increment/common/tutorial/src/",
             "Increment\\Messenger\\": "packages/increment/messenger/src/",
             "Increment\\Common\\Notification\\": "packages/increment/common/notification/src/",
