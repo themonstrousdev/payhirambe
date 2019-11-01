@@ -178,6 +178,7 @@ return [
         Increment\Common\Notification\NotificationServiceProvider::class,
         Increment\Common\Invitation\InvitationServiceProvider::class,
         Increment\Messenger\MessengerServiceProvider::class,
+        Increment\Payment\PaymentServiceProvider::class,
 
         /*
          * Application Service Providers...
