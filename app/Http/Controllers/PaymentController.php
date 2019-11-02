@@ -16,7 +16,7 @@ class PaymentController extends APIController
 
   public function retrieve(Request $request){
     $data = $request->all();
-    $result = Payment::where('account_id', '=', $data['account_id'])->limit(intval($data['limit']))->offset(intval($data['offset']))->orderBy($data['sort']['column'], $data['sort']['value'])->get();
+    $result = Payment::where('account_id', '=', $data['account_id'])->where($data['column'], 'like', $data['value'])->limit(intval($data['limit']))->offset(intval($data['offset']))->orderBy($data['sort']['column'], $data['sort']['value'])->get();
 
     if(sizeof($result) > 0){
       $i = 0;

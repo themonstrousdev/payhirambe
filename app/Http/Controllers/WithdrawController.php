@@ -81,6 +81,7 @@ class WithdrawController extends APIController
 
     public function retrieve(Request $request){
       $data = $request->all();
+      $this->model = new Withdraw();
       $this->retrieveDB($data);
       $result = $this->response['data'];
       return $this->response();

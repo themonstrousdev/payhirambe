@@ -22,6 +22,7 @@ class DepositController extends APIController
         $i = 0;
         foreach ($result as $key) {
             $attachments = DepositAttachment::where('deposit_id','=',$result[$i]['id'])->get();
+            $this->response["data"][$i]['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result[$i]['created_at'])->copy()->tz('Asia/Manila')->format('F j, Y H:i A');
             $this->response["data"][$i]['attachments'] = $attachments;
             $i++;
         }

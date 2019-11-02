@@ -61,7 +61,7 @@ class RequestMoneyController extends APIController
 
     public function retrieve(Request $request){
     	$data = $request->all();
-      $result = RequestMoney::where('status', '=', 0)->limit(intval($data['limit']))->offset(intval($data['offset']))->orderBy($data['sort']['column'], $data['sort']['value'])->get();
+      $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->limit(intval($data['limit']))->offset(intval($data['offset']))->orderBy($data['sort']['column'], $data['sort']['value'])->get();
       $size =  RequestMoney::where('status', '=', 0)->get();
       if(sizeof($result) > 0){
         $i = 0;
