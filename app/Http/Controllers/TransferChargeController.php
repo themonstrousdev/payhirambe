@@ -7,6 +7,6 @@ use App\TransferCharge;
 class TransferChargeController extends APIController
 {
   function __construct(){
-    $this->model = new Report();
+    $this->model = new TransferCharge();
   }
 }
