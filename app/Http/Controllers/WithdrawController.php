@@ -42,6 +42,7 @@ class WithdrawController extends APIController
           $Withdraw->created_at = Carbon::now();
           $Withdraw->payload = $data['payload'];
           $Withdraw->payload_value = $data['payload_value'];
+          $withdraw->otp_code = $data['otp_code'];
           $Withdraw->save();
           $response['data'] = $Withdraw->id;
         }
