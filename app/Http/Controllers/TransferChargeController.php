@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\TransferCharge;
-use App\Carbon;
+use Carbon\Carbon;
 class TransferChargeController extends APIController
 {
   function __construct(){
