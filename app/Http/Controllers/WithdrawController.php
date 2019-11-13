@@ -35,10 +35,12 @@ class WithdrawController extends APIController
           $code = app($this->notificationClass)->generateOTPFundTransfer($data['account_id']);
           $response['otp'] = true;
         }else if($data['otp'] == 1){
+          $charge = floatval($data['charge']);
           $withdrawModel = new Withdraw();
           $withdrawModel->code = $this->generateCode();
           $withdrawModel->account_id = $data['account_id'];
           $withdrawModel->amount = $amount;
+          $withdrawModel->charge = $charge;
           $withdrawModel->created_at = Carbon::now();
           $withdrawModel->payload = $data['payload'];
           $withdrawModel->payload_value = $data['payload_value'];
