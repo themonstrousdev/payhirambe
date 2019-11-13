@@ -8,7 +8,7 @@ $amount = $data['amount'] + $data['interest'];
     Hello {{$data['account']['username']}}!
     <br>
     <br>
-    Here is your billing notification on PAYHIRAM:
+    Here is your billing notification on {{env('APP_NAME')}}:
     <br>
     <br>
     <br>

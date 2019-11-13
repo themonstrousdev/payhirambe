@@ -4,7 +4,7 @@
     <h3>Reset Password Request</h3>
     Hello {{$user->username}}! 
     <br>
-    You've requested to reset your account password on Classworx using this email address at {{$user->email}}.
+    You've requested to reset your account password on {{env('APP_NAME')}}: using this email address at {{$user->email}}.
     <br>
     Click the button below to:
     <br>

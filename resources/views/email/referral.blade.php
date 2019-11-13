@@ -1,13 +1,13 @@
 @component('email.header')
 @endcomponent
 <span class="text">
-    <h3>ID Factory Invitation</h3>
+    <h3>{{env('APP_NAME')}} Invitation</h3>
     Hello {{$toEmail}}!
     <br>
     <br>
     Have a wonderful day!
     <br>
-    You have been invited by {{$user->email}} to join the ID Factory.
+    You have been invited by {{$user->email}} to join the {{env('APP_NAME')}}.
     <br>
     {{$content}}
     <br>
