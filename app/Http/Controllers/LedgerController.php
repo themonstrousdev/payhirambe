@@ -23,7 +23,7 @@ class LedgerController extends APIController
 
     public function summary(Request $request){
       $data = $request->all();
-      $result = Ledger::where('account_id', '=', $data['account_id'])->limit(intval($data['limit']))->offset(intval($data['offset']))->orderBy($data['sort']['column'], $data['sort']['value'])->get();
+      $result = Ledger::where('account_id', '=', $data['account_id'])->where($data['column'], 'like', $data['value'])->limit(intval($data['limit']))->offset(intval($data['offset']))->orderBy($data['sort']['column'], $data['sort']['value'])->get();
       if(sizeof($result) > 0){
         $i = 0;
         foreach ($result as $key) {
