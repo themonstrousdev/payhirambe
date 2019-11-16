@@ -46,10 +46,12 @@ class AuthenticateController extends Controller
     $result = null;
     if($this->customValidate($text) == true){        
       $credentials = array("email" => $data['username'], 'password' => $data['password']);
-      $result = Account::where('email', '=', $data['username'])->get();
+      // $result = Account::where('email', '=', $data['username'])->get();
+      $result = Account::whereRaw("BINARY email='".$data["username"]."'")->get();
     }else{
       $credentials = array("username" => $data['username'], 'password' => $data['password']);
-      $result = Account::where('username', '=', $data['username'])->get();
+      // $result = Account::where('username', '=', $data['username'])->get();
+      $result = Account::whereRaw("BINARY username='".$data["username"]."'")->get();
     }
     if(sizeof($result) > 0){
       app('App\Http\Controllers\NotificationSettingController')->manageNotification($result[0]['id']);
