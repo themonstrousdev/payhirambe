@@ -43,7 +43,8 @@ class RequestMoneyController extends APIController
           'from' => $data['account_id'],
           'payload' => 'comaker',
           'payload_value' => $getID[0]->id,
-          'route' => '/requests/'.$requestMoney[0]['code']
+          'route' => '/requests/'.$requestMoney[0]['code'],
+          'created_at' => Carbon::now()
         );
         app($this->notificationClass)->createByParams($parameter);
       }
