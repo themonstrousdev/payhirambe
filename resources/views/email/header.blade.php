@@ -39,10 +39,10 @@
                 float: left;
             }
             .text-primary{
-                color:#22b173;   
+                color:#005b96;   
             }
             .text-secondary{
-                color:#22b173;
+                color:#005b96;
             }
             .text{
                 color: #555;
@@ -58,7 +58,7 @@
                 height: 200px;
                 width: 100%;
                 float: left;
-                background: #22b173;
+                background: #005b96;
                 color: #fff;
                 text-align: center;
                 border-top-right-radius: 5px;
@@ -88,7 +88,7 @@
             .button{
                 width: 300px;
                 height: 50px;
-                background: #028170;
+                background: #005b96;
                 border: none;
                 color: #fff;
                 font-size: 16px;
