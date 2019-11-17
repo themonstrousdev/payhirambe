@@ -36,15 +36,16 @@ class RequestMoneyController extends APIController
       $userExist = Account::where('email', '=', $data['comaker'])->get();
       if(sizeof($userExist) > 0){
         $comaker = $userExist[0]->id;
-        app($this->comakerClass)->addToComaker($data['account_id'], $getID[0]->id, $comaker); 
+        app($this->comakerClass)->addToComaker($data['account_id'], $getID[0]->id, $comaker);
+        $requestMoney = RequestMoney::where('id', '=', $this->response['data'])->get();
         $parameter = array(
           'to' => $comaker,
           'from' => $data['account_id'],
           'payload' => 'comaker',
           'payload_value' => $getID[0]->id,
-          'route' => '/requests/' + $data['request_id']
+          'route' => '/requests/'.$requestMoney[0]['code']
         );
-      app($this->notificationClass)->create($parameter);
+        app($this->notificationClass)->createByParams($parameter);
       }
     	return $this->response();
     }
