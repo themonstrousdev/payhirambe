@@ -52,6 +52,7 @@ class InvestmentController extends APIController
               $code = app($this->notificationClass)->generateOTPFundTransfer($data['account_id']);
               $response['otp'] = true;
             }else if($data['otp'] == 1){
+              $request = app($this->requestClass)->getByParams('id', $data['request_id']);
               $invest = new Investment();
               $invest->code = $this->generateCode();
               $invest->account_id = $data['account_id'];
@@ -70,9 +71,10 @@ class InvestmentController extends APIController
                 'from' => $data['account_id'],
                 'payload' => 'invest',
                 'payload_value' => 'tests',
-                'route' => '/requests/'
+                'route' => '/requests/'.$request['code'],
+                'created_at' => Carbon::now()
               );
-              app($this->notifClass)->create($parameter);           
+              app($this->notifClass)->createByParams($parameter);         
               app($this->pullingClass)->addToPulling($data['account_id'], $amount, $data['request_id']);
               app($this->ledgerClass)->addToLedger($data['account_id'], $amount * (-1), $description, $payload, $payloadValue);
               if($left <= 0){

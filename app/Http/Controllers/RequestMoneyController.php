@@ -101,6 +101,11 @@ class RequestMoneyController extends APIController
       return (sizeof($result) > 0) ? $result[0] : null;
     }
 
+    public function getByParams($column, $value){
+      $result = RequestMoney::where($column, '=', $value)->get();
+      return (sizeof($result) > 0) ? $result[0] : null;
+    }
+
     public function getAttributes($result){
       if(sizeof($result) > 0){
         $i = 0;
