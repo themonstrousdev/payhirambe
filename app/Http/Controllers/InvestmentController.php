@@ -77,7 +77,7 @@ class InvestmentController extends APIController
               );
               app($this->notifClass)->createByParams($parameter);         
               app($this->pullingClass)->addToPulling($data['account_id'], $amount, $data['request_id']);
-              app($this->ledgerClass)->addToLedger($data['account_id'], $amount * (-1), $description, $payload, $payloadValue, ' to'.$borrower['username']);
+              app($this->ledgerClass)->addToLedger($data['account_id'], $amount * (-1), $description, $payload, $payloadValue, ' to '.$borrower['username']);
               if($left <= 0){
                 app($this->requestClass)->updateStatus($data['request_id']);
               }
