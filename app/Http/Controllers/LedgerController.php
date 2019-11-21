@@ -48,7 +48,7 @@ class LedgerController extends APIController
       return $result;
     }
 
-    public function addToLedger($accountId, $amount, $description, $payload, $payloadValue){
+    public function addToLedger($accountId, $amount, $description, $payload, $payloadValue, $to){
       $ledger = new Ledger();
       $code = $this->generateCode();
       $ledger->code = $code;
@@ -62,7 +62,7 @@ class LedgerController extends APIController
 
  //     sent email
       $details = array(
-        'title' => $description.' the amount of PHP'.number_format(($amount * (-1)), 2),
+        'title' => $description.number_format(($amount * (-1)), 2).$to,
         'transaction_id' => $code
       );
 

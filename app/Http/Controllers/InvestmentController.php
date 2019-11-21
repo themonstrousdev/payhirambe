@@ -53,6 +53,7 @@ class InvestmentController extends APIController
               $response['otp'] = true;
             }else if($data['otp'] == 1){
               $request = app($this->requestClass)->getByParams('id', $data['request_id']);
+              $borrower = $this->retrieveAccountDetails($getID[0]->account_id);
               $invest = new Investment();
               $invest->code = $this->generateCode();
               $invest->account_id = $data['account_id'];
@@ -63,7 +64,7 @@ class InvestmentController extends APIController
               $invest->save();
               $response['data'] = $invest->id;
               $response['error'] = null;
-              $description = 'Invested to';
+              $description = 'You have invested the amount of';
               $payload = 'investments';
               $payloadValue = $invest->id;
               $parameter = array(
@@ -76,7 +77,7 @@ class InvestmentController extends APIController
               );
               app($this->notifClass)->createByParams($parameter);         
               app($this->pullingClass)->addToPulling($data['account_id'], $amount, $data['request_id']);
-              app($this->ledgerClass)->addToLedger($data['account_id'], $amount * (-1), $description, $payload, $payloadValue);
+              app($this->ledgerClass)->addToLedger($data['account_id'], $amount * (-1), $description, $payload, $payloadValue, ' to'.$borrower['username']);
               if($left <= 0){
                 app($this->requestClass)->updateStatus($data['request_id']);
               }
