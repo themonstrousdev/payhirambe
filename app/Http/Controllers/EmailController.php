@@ -38,6 +38,9 @@ class EmailController extends APIController
         return false;
     }
 
+    public function loginInvitation($id, $password){
+    }
+
     public function changedPassword($id){
         $user = $this->retrieveAccountDetails($id);
         if($user != null){
