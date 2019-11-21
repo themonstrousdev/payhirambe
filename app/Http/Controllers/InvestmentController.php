@@ -64,7 +64,7 @@ class InvestmentController extends APIController
               $invest->save();
               $response['data'] = $invest->id;
               $response['error'] = null;
-              $description = 'You have invested the amount of';
+              $description = 'You have invested the amount of PHP ';
               $payload = 'investments';
               $payloadValue = $invest->id;
               $parameter = array(
