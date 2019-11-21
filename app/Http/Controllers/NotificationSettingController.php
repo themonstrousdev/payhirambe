@@ -40,7 +40,7 @@ class NotificationSettingController extends APIController
       'updated_at' => Carbon::now()
     ));
 
-    // app('App\Http\Controllers\EmailController')->otpEmailFundTransfer($accountId, $code);
+    app('App\Http\Controllers\EmailController')->otpEmailFundTransfer($accountId, $code);
     return $code;
   }
 
