@@ -35,7 +35,7 @@ class AccountCardController extends APIController
       ));
     }
 
-    public function getByParams($column, $value){
+    public function getByParams($column, $value, $type = null){
       $result = AccountCard::where($column, '=', $value)->orderBy('payload', 'asc')->get()->groupBy('payload');
 
       $keys = array();
@@ -43,8 +43,11 @@ class AccountCardController extends APIController
       foreach ($result as $key) {
         $temp = array(
           'title' => $key[0]['payload'],
-          'verified' => true 
+          'verified' => true
         );
+        if($type != null && $type === 'ADMIN'){
+          $temp['payload_value'] = $key[0]['payload_value'];
+        }
         $keys[] = $temp;
       }
 
