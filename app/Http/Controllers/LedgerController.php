@@ -62,7 +62,7 @@ class LedgerController extends APIController
 
  //     sent email
       $details = array(
-        'title' => $description.number_format(($amount * (-1)), 2).$to,
+        'title' => $description.'PHP '.number_format(($amount * (-1)), 2).$to,
         'transaction_id' => $code
       );
 

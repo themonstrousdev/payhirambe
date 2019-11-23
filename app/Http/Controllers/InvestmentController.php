@@ -64,7 +64,7 @@ class InvestmentController extends APIController
               $invest->save();
               $response['data'] = $invest->id;
               $response['error'] = null;
-              $description = 'You have invested the amount of PHP ';
+              $description = 'You have invested the amount of ';
               $payload = 'investments';
               $payloadValue = $invest->id;
               $parameter = array(
@@ -134,7 +134,13 @@ class InvestmentController extends APIController
 
     public function retrieveById($id){
       $result = Investment::where('id', '=', $id)->get();
-
+      if(sizeof($result) > 0){
+        $i = 0;
+        foreach ($result as $key) {
+          $result[$i]['request'] = app($this->requestClass)->getByParams('id', $result[$i]['request_id']);
+          $i++;
+        }
+      }
       return sizeof($result) > 0 ? $result[0] : null;
     }
 
