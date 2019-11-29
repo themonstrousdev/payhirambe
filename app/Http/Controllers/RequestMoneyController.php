@@ -95,9 +95,9 @@ class RequestMoneyController extends APIController
       ));
     }
 
-    public function retrieveById($id){
+    public function retrieveById($id, $type = null){
       $result = RequestMoney::where('id', '=', $id)->get();
-      $result = $this->getAttributes($result);
+      $result = $this->getAttributes($result, $type);
       return (sizeof($result) > 0) ? $result[0] : null;
     }
 
@@ -106,14 +106,14 @@ class RequestMoneyController extends APIController
       return (sizeof($result) > 0) ? $result[0] : null;
     }
 
-    public function getAttributes($result){
+    public function getAttributes($result, $type = null){
       if(sizeof($result) > 0){
         $i = 0;
         foreach ($result as $key) {
           $invested = app($this->investmentClass)->invested($result[$i]['id']);
           $result[$i]['rating'] = app($this->ratingClass)->getRatingByPayload('profile', $result[$i]['account_id']);
           $result[$i]['account'] = $this->retrieveAccountDetails($result[$i]['account_id']);
-          $result[$i]['cards'] = app($this->cardClass)->getByParams('account_id', $result[$i]['account_id'], null);
+          $result[$i]['cards'] = app($this->cardClass)->getByParams('account_id', $result[$i]['account_id'], $type);
           $result[$i]['works'] = app($this->workClass)->getByParams('account_id', $result[$i]['account_id']);
           $result[$i]['guarantors'] = app($this->guarantorClass)->getByParams('sender', $result[$i]['account_id']);
           $result[$i]['educations'] = app($this->educationClass)->getByParams('account_id', $result[$i]['account_id']);
