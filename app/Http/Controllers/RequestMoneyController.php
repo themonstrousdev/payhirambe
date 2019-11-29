@@ -74,7 +74,7 @@ class RequestMoneyController extends APIController
           $result[$i]['pulling'] = app($this->pullingClass)->getTotalByParams('request_id', $result[$i]['id']);
           $result[$i]['account'] = $this->retrieveAccountDetails($result[$i]['account_id']);
           $result[$i]['works'] = app($this->workClass)->getByParams('account_id', $result[$i]['account_id']);
-          $result[$i]['cards'] = app($this->cardClass)->getByParams('account_id', $result[$i]['account_id']);
+          $result[$i]['cards'] = app($this->cardClass)->getByParams('account_id', $result[$i]['account_id'], $data['type']);
           $result[$i]['guarantors'] = app($this->guarantorClass)->getByParams('sender', $result[$i]['account_id']);
           $result[$i]['educations'] = app($this->educationClass)->getByParams('account_id', $result[$i]['account_id']);
           $result[$i]['comakers'] = app($this->comakerClass)->getByParams($result[$i]['account_id'], $result[$i]['id']);
@@ -113,7 +113,7 @@ class RequestMoneyController extends APIController
           $invested = app($this->investmentClass)->invested($result[$i]['id']);
           $result[$i]['rating'] = app($this->ratingClass)->getRatingByPayload('profile', $result[$i]['account_id']);
           $result[$i]['account'] = $this->retrieveAccountDetails($result[$i]['account_id']);
-          $result[$i]['cards'] = app($this->cardClass)->getByParams('account_id', $result[$i]['account_id']);
+          $result[$i]['cards'] = app($this->cardClass)->getByParams('account_id', $result[$i]['account_id'], null);
           $result[$i]['works'] = app($this->workClass)->getByParams('account_id', $result[$i]['account_id']);
           $result[$i]['guarantors'] = app($this->guarantorClass)->getByParams('sender', $result[$i]['account_id']);
           $result[$i]['educations'] = app($this->educationClass)->getByParams('account_id', $result[$i]['account_id']);
