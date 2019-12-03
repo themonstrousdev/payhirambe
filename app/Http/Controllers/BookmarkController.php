@@ -17,12 +17,10 @@ class BookmarkController extends APIController
       $data = $request->all();
       $bookmark = $this->checkIfExist($data['account_id'], $data['request_id']);
       if($bookmark != null && $bookmark['deleted_at'] == null){
-        $array = array(
-          'id' => $bookmark['id'],
+        Bookmark::where('id', '=', $bookmark['id'])->update(array(
           'deleted_at' => Carbon::now()
-        );
-        $this->model = new Bookmark();
-        $this->updateDB($array);
+        ));
+        $this->response['data'] = true;
       }else if($bookmark != null && $bookmark['deleted_at'] != null){
         Bookmark::where('id', '=', $bookmark['id'])->update(array(
           'deleted_at' => null
