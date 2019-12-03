@@ -18,6 +18,7 @@ class RequestMoneyController extends APIController
     public $cardClass = 'App\Http\Controllers\AccountCardController';
     public $educationClass = 'App\Http\Controllers\EducationController';
     public $guarantorClass = 'App\Http\Controllers\GuarantorController';
+    public $bookmarkClass = 'App\Http\Controllers\BookmarkController';
     function __construct(){  
     	$this->model = new RequestMoney();
 
@@ -86,6 +87,7 @@ class RequestMoneyController extends APIController
           $result[$i]['invested'] = $invested['size'];
           $result[$i]['pulling_percentage'] = intval(($result[$i]['pulling'] /  $result[$i]['initial_amount']) * 100);
           $result[$i]['billing_per_month_human'] = $this->billingPerMonth($result[$i]['billing_per_month']);
+          $result[$i]['bookmark'] = (app($this->bookmarkClass)->checkIfExist($data['account_id'], $result[$i]['id']) == null) ? false : true;
           $i++;
         }
       }
