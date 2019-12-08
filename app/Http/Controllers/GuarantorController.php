@@ -45,7 +45,7 @@ class GuarantorController extends APIController
           );
           app($this->notificationClass)->createByParams($parameter);
         }
-        Mail::to($data['email'])->send(new Guarantor($user, $data['email'], $code));
+        Mail::to($data['email'])->send(new Guarantor($sender, $data['email'], $code));
         $this->response['data'] = $guarantor->id;
         $this->response['error'] = null;
       }
