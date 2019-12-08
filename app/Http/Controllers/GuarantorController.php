@@ -53,6 +53,12 @@ class GuarantorController extends APIController
     return $this->response();
   }
 
+  public function retrieve(Request $request){
+    $data = $request->all();
+    $this->response['data'] = GuarantorModel::where('sender', '=', $data['account_id'])->orWhere('receiver', '=', $data['account_id'])->orderBy('created_at', '=', 'desc')->get();
+    return $this->response();
+  }
+
   public function generateCode(){
     $code = substr(str_shuffle("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 32);
     $codeExist = GuarantorModel::where('code', '=', $code)->get();
