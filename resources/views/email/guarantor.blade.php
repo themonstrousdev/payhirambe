@@ -12,7 +12,7 @@
     <br>
     Click the button below to:
     <br>
-    <a href="{{env('APP_FRONT_END_URL')}}/signup/{{email}}/{{$code}}">
+    <a href="{{env('APP_FRONT_END_URL')}}/signup/{{$email}}/{{$code}}">
         <button class="button">Accept & Register Now!</button>
     </a>
     <br>
