@@ -39,7 +39,8 @@ class GuarantorController extends APIController
           'from' => $data['account_id'],
           'payload' => 'guarantor',
           'payload_value' => $guarantor->id,
-          'route' => '/profile/guarantor/'.$code
+          'route' => '/profile/guarantor/'.$code,
+          'created_at' => Carbon::now()
         );
         app($this->notificationClass)->createByParams($parameter);
         Mail::to($data['email'])->send(new Guarantor($user, $data['email'], $code));
