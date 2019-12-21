@@ -54,6 +54,9 @@ class RequestMoneyController extends APIController
           );
           app($this->notificationClass)->createByParams($parameter);
         }
+        if(sizeof($data['images']) > 0){
+          app($this->requestImageClass)->insert($data['images'], $this->response['data']);
+        }
       }else{
         // add location
         $data['location']['request_id'] = $this->response['data'];
