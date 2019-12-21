@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\RequestPeer;
-class RequestPeerController extends Controller
+use Carbon\Carbon;
+class RequestPeerController extends APIController
 {
   public $notificationClass = 'Increment\Common\Notification\Http\NotificationController';
   function __construct(){
@@ -13,6 +14,11 @@ class RequestPeerController extends Controller
 
   public function create(Request $request){
     $data = $request->all();
+    if($this->checkIfExist($data['request_id'], $data['account_id']) == true){
+      $this->response['data'] = null;
+      $this->response['error'] = 'Already exist!';
+      return $this->response();
+    }
     $data['code'] = $this->generateCode();
     $this->model = new RequestPeer();
     $this->insertDB($data);
@@ -30,7 +36,7 @@ class RequestPeerController extends Controller
     }
     return $this->response();
   }
-  
+
   public function generateCode(){
     $code = substr(str_shuffle("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 32);
     $codeExist = RequestPeer::where('code', '=', $code)->get();
@@ -39,5 +45,10 @@ class RequestPeerController extends Controller
     }else{
       return $code;
     }
+  }
+
+  public function checkIfExist($requestId, $accountId){
+    $result = RequestPeer::where('request_id', '=', $requestId)->where('account_id', '=', $accountId)->get();
+    return sizeof($result) > 0 ? true : false;
   }
 }
