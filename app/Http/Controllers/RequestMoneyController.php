@@ -19,11 +19,13 @@ class RequestMoneyController extends APIController
     public $educationClass = 'App\Http\Controllers\EducationController';
     public $guarantorClass = 'App\Http\Controllers\GuarantorController';
     public $bookmarkClass = 'App\Http\Controllers\BookmarkController';
+    public $requestLocationClass = 'App\Http\Controllers\RequestLocationController';
+    public $requestImageClass = 'App\Http\Controllers\RequestImageController';
+    
     function __construct(){  
     	$this->model = new RequestMoney();
-
       $this->notRequired = array(
-        'approved_date'
+        'approved_date', 'months_payable', 'interest', 'reason', 'billing_per_month'
       );
     }
 
@@ -33,22 +35,32 @@ class RequestMoneyController extends APIController
       $data['status'] = 0;
     	$this->model = new RequestMoney();
     	$this->insertDB($data);
-      $getID = RequestMoney::where('code', '=', $data['code'])->get();
-      $userExist = Account::where('email', '=', $data['comaker'])->get();
-      if(sizeof($userExist) > 0){
-        $comaker = $userExist[0]->id;
-        app($this->comakerClass)->addToComaker($data['account_id'], $getID[0]->id, $comaker);
-        $requestMoney = RequestMoney::where('id', '=', $this->response['data'])->get();
-        $parameter = array(
-          'to' => $comaker,
-          'from' => $data['account_id'],
-          'payload' => 'comaker',
-          'payload_value' => $getID[0]->id,
-          'route' => '/requests/'.$requestMoney[0]['code'],
-          'created_at' => Carbon::now()
-        );
-        app($this->notificationClass)->createByParams($parameter);
+      if(intval($data['type']) > 100){
+        // comaker
+        // images
+        $getID = RequestMoney::where('code', '=', $data['code'])->get();
+        $userExist = Account::where('email', '=', $data['comaker'])->get();
+        if(sizeof($userExist) > 0){
+          $comaker = $userExist[0]->id;
+          app($this->comakerClass)->addToComaker($data['account_id'], $getID[0]->id, $comaker);
+          $requestMoney = RequestMoney::where('id', '=', $this->response['data'])->get();
+          $parameter = array(
+            'to' => $comaker,
+            'from' => $data['account_id'],
+            'payload' => 'comaker',
+            'payload_value' => $getID[0]->id,
+            'route' => '/requests/'.$requestMoney[0]['code'],
+            'created_at' => Carbon::now()
+          );
+          app($this->notificationClass)->createByParams($parameter);
+        }
+      }else{
+        // add location
+        $data['location']['request_id'] = $this->response['data'];
+        $data['location']['created_at'] = Carbon::now();
+        app($this->requestLocationClass)->insert($data['location']);
       }
+      $this->response['data'] = $data['code'];
     	return $this->response();
     }
 
@@ -71,6 +83,8 @@ class RequestMoneyController extends APIController
         foreach ($result as $key) {
           $invested = app($this->investmentClass)->invested($result[$i]['id']);
           $amount = floatval($result[$i]['amount']);
+          $result[$i]['location'] = app($this->requestLocationClass)->getByParams('request_id', $result[$i]['id']);
+          $result[$i]['images'] = app($this->requestImageClass)->getByParams('request_id', $result[$i]['id']);
           $result[$i]['rating'] = app($this->ratingClass)->getRatingByPayload('profile', $result[$i]['account_id']);
           $result[$i]['pulling'] = app($this->pullingClass)->getTotalByParams('request_id', $result[$i]['id']);
           $result[$i]['account'] = $this->retrieveAccountDetails($result[$i]['account_id']);
@@ -113,6 +127,8 @@ class RequestMoneyController extends APIController
         $i = 0;
         foreach ($result as $key) {
           $invested = app($this->investmentClass)->invested($result[$i]['id']);
+          $result[$i]['location'] = app($this->requestLocationClass)->getByParams('request_id', $result[$i]['id']);
+          $result[$i]['images'] = app($this->requestImageClass)->getByParams('request_id', $result[$i]['id']);
           $result[$i]['rating'] = app($this->ratingClass)->getRatingByPayload('profile', $result[$i]['account_id']);
           $result[$i]['account'] = $this->retrieveAccountDetails($result[$i]['account_id']);
           $result[$i]['cards'] = app($this->cardClass)->getByParams('account_id', $result[$i]['account_id'], $type);

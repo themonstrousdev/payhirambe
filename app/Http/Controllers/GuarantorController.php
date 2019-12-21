@@ -83,4 +83,26 @@ class GuarantorController extends APIController
     }
     return sizeof($result) > 0 ? $result : null;
   }
+
+  public function update(Request $request){
+    $data = $request->all();
+    $this->model = new GuarantorModel();
+    $parameter = array(
+      'id'  => $data['id'],
+      'status'  => $data['status'],
+    );
+    $this->updateDB($parameter);
+    // if($this->response['data'] == true){
+    //   $notifParameter = array(
+    //     'to' => $receiver[0]->id,
+    //     'from' => $data['account_id'],
+    //     'payload' => 'guarantor',
+    //     'payload_value' => $guarantor->id,
+    //     'route' => '/profile/guarantor/'.$code,
+    //     'created_at' => Carbon::now()
+    //   );
+    //   app($this->notificationClass)->createByParams($notifParameter);
+    // }
+    return $this->response();
+  }
 }
