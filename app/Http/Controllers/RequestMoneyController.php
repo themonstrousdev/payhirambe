@@ -21,6 +21,7 @@ class RequestMoneyController extends APIController
     public $bookmarkClass = 'App\Http\Controllers\BookmarkController';
     public $requestLocationClass = 'App\Http\Controllers\RequestLocationController';
     public $requestImageClass = 'App\Http\Controllers\RequestImageController';
+    public $requestPeerClass = 'App\Http\Controllers\RequestPeerController';
     
     function __construct(){  
     	$this->model = new RequestMoney();
@@ -87,6 +88,7 @@ class RequestMoneyController extends APIController
           $invested = app($this->investmentClass)->invested($result[$i]['id']);
           $amount = floatval($result[$i]['amount']);
           $result[$i]['location'] = app($this->requestLocationClass)->getByParams('request_id', $result[$i]['id']);
+          $result[$i]['peers'] = app($this->requestPeerClass)->getByParams('request_id', $result[$i]['id']);
           $result[$i]['images'] = app($this->requestImageClass)->getByParams('request_id', $result[$i]['id']);
           $result[$i]['rating'] = app($this->ratingClass)->getRatingByPayload('profile', $result[$i]['account_id']);
           $result[$i]['pulling'] = app($this->pullingClass)->getTotalByParams('request_id', $result[$i]['id']);

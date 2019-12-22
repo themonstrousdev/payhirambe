@@ -8,6 +8,9 @@ use Carbon\Carbon;
 class RequestPeerController extends APIController
 {
   public $notificationClass = 'Increment\Common\Notification\Http\NotificationController';
+  public $ratingClass = 'Increment\Common\Rating\Http\RatingController';
+  public $requestClass = 'App\Http\Controllers\RequestMoneyController';
+    
   function __construct(){
     $this->model = new RequestPeer();
   }
@@ -24,12 +27,13 @@ class RequestPeerController extends APIController
     $this->insertDB($data);
     if($this->response['data'] > 0){
       // notifications
+      $requestData = app($this->requestClass)->getByParams('id', $data['request_id']);
       $parameter = array(
         'to' => $data['to'],
         'from' => $data['account_id'],
-        'payload' => 'peer',
+        'payload' => 'request',
         'payload_value' => $this->response['data'],
-        'route' => '/peers/'.$data['code'],
+        'route' => '/requests/'.$requestData['code'],
         'created_at' => Carbon::now()
       );
       app($this->notificationClass)->createByParams($parameter);
@@ -50,5 +54,27 @@ class RequestPeerController extends APIController
   public function checkIfExist($requestId, $accountId){
     $result = RequestPeer::where('request_id', '=', $requestId)->where('account_id', '=', $accountId)->get();
     return sizeof($result) > 0 ? true : false;
+  }
+
+  public function getByParams($column, $value){
+    $result = RequestPeer::where($column, '=', $value)->get();
+    $i = 0;
+    $status = false;
+    foreach ($result as $key) {
+      $result[$i]['account'] = $this->retrieveAccountDetails($key->account_id);
+      $result[$i]['rating'] = app($this->ratingClass)->getRatingByPayload('profile', $result[$i]['account_id']);
+      if($status == false && $key->status == 'approved'){
+        $status = true;
+      }
+      if($key->status == 'approved'){
+        //view message thread
+      }
+      $i++;
+    }
+    $response = array(
+      'status' => $status,
+      'peers' => (sizeof($result) > 0) ? $result : null
+    );
+    return $response;
   }
 }
