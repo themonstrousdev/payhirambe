@@ -49,4 +49,9 @@ class RequestValidationController extends APIController
       'transfer_status' => $transferStatus
     );
   }
+
+  public function getDetailsByParams($column, $value){
+    $result = RequestValidation::where($column, '=', $value)->get();
+    return (sizeof($result) > 0) ? $result[0] : null;
+  }
 }
