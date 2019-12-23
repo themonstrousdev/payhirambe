@@ -22,6 +22,11 @@ class RequestPeerController extends APIController
       $this->response['error'] = 'Already exist!';
       return $this->response();
     }
+    if($this->checkIfApproved($data['request_id']) == true){
+      $this->response['data'] = null;
+      $this->response['error'] = 'Request already approved!';
+      return $this->response();
+    }
     $data['code'] = $this->generateCode();
     $this->model = new RequestPeer();
     $this->insertDB($data);
@@ -53,6 +58,11 @@ class RequestPeerController extends APIController
 
   public function checkIfExist($requestId, $accountId){
     $result = RequestPeer::where('request_id', '=', $requestId)->where('account_id', '=', $accountId)->get();
+    return sizeof($result) > 0 ? true : false;
+  }
+
+  public function checkIfApproved($requestId){
+    $result = RequestPeer::where('request_id', '=', $requestId)->where('status', '=', 'approved')->get();
     return sizeof($result) > 0 ? true : false;
   }
 

@@ -79,7 +79,17 @@ class MessengerGroupController extends APIController
         foreach ($result as $key) {
           $result[$i]['account_details'] = $this->retrieveAccountDetails($result[$i]['account_id']);
           $result[$i]['members'] = $this->getMembers($result[$i]['id'], null);
-          $result[$i]['title'] = $this->retrieveAccountDetails($result[$i]['account_id']);
+          $members = $result[$i]['members']['result'];
+          if(sizeof($members) > 0){
+            if(intval($data['account_id']) == intval($members[0]['account_id'])){
+              $result[$i]['title'] = $this->retrieveAccountDetails($members[1]['account_id']);
+            }else{
+              $result[$i]['title'] = $this->retrieveAccountDetails($result[$i]['account_id']);
+            }
+          }else{
+            $result[$i]['title'] = $this->retrieveAccountDetails($result[$i]['account_id']);
+          }
+          $result[$i]['thread'] = $key['title'];
           $existed[] = $result[$i]['account_id'];
           $result[$i]['new'] = false;
           if($key['title'] == $code){

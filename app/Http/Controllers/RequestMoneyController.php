@@ -81,38 +81,49 @@ class RequestMoneyController extends APIController
 
     public function retrieve(Request $request){
     	$data = $request->all();
-      $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->orWhere('type', '<=', 100)->limit(intval($data['limit']))->offset(intval($data['offset']))->orderBy($data['sort']['column'], $data['sort']['value'])->get();
+      $result = array();
+      $response = array();
+      if($data['value'] != null){
+        $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->limit(intval($data['limit']))->offset(intval($data['offset']))->orderBy($data['sort']['column'], $data['sort']['value'])->get();
+      }else{
+        $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->orWhere('type', '<=', 100)->limit(intval($data['limit']))->offset(intval($data['offset']))->orderBy($data['sort']['column'], $data['sort']['value'])->get();
+      }
+      
       $size =  RequestMoney::where('status', '=', 0)->get();
       if(sizeof($result) > 0){
         $i = 0;
         foreach ($result as $key) {
-          $invested = app($this->investmentClass)->invested($result[$i]['id']);
-          $amount = floatval($result[$i]['amount']);
-          $result[$i]['location'] = app($this->requestLocationClass)->getByParams('request_id', $result[$i]['id']);
-          $result[$i]['peers'] = app($this->requestPeerClass)->getByParams('request_id', $result[$i]['id']);
-          $result[$i]['images'] = app($this->requestImageClass)->getByParams('request_id', $result[$i]['id']);
-          $result[$i]['rating'] = app($this->ratingClass)->getRatingByPayload('profile', $result[$i]['account_id']);
-          $result[$i]['pulling'] = app($this->pullingClass)->getTotalByParams('request_id', $result[$i]['id']);
-          $result[$i]['account'] = $this->retrieveAccountDetails($result[$i]['account_id']);
-          $result[$i]['works'] = app($this->workClass)->getByParams('account_id', $result[$i]['account_id']);
-          $result[$i]['cards'] = app($this->cardClass)->getByParams('account_id', $result[$i]['account_id'], $data['type']);
-          $result[$i]['guarantors'] = app($this->guarantorClass)->getByParams('sender', $result[$i]['account_id']);
-          $result[$i]['educations'] = app($this->educationClass)->getByParams('account_id', $result[$i]['account_id']);
-          $result[$i]['comakers'] = app($this->comakerClass)->getByParams($result[$i]['account_id'], $result[$i]['id']);
-          $result[$i]['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result[$i]['created_at'])->copy()->tz('Asia/Manila')->format('F j, Y H:i A');
-          $result[$i]['needed_on_human'] = Carbon::createFromFormat('Y-m-d', $result[$i]['needed_on'])->copy()->tz('Asia/Manila')->format('F j, Y');
-          $result[$i]['total'] = $this->getTotalBorrowed($result[$i]['account_id']);
-          $result[$i]['initial_amount'] = $result[$i]['amount'];
-          $result[$i]['amount'] = $amount - $invested['total'];
-          $result[$i]['invested'] = $invested['size'];
-          $result[$i]['pulling_percentage'] = intval(($result[$i]['pulling'] /  $result[$i]['initial_amount']) * 100);
-          $result[$i]['billing_per_month_human'] = $this->billingPerMonth($result[$i]['billing_per_month']);
-          $result[$i]['bookmark'] = (app($this->bookmarkClass)->checkIfExist($data['account_id'], $result[$i]['id']) == null) ? false : true;
+          $peerApproved = app($this->requestPeerClass)->checkIfApproved($result[$i]['id']);
+          if($peerApproved == false || $data['value'] == $result[$i]['code'].'%'){
+            $invested = app($this->investmentClass)->invested($result[$i]['id']);
+            $amount = floatval($result[$i]['amount']);
+            $result[$i]['location'] = app($this->requestLocationClass)->getByParams('request_id', $result[$i]['id']);
+            $result[$i]['peers'] = app($this->requestPeerClass)->getByParams('request_id', $result[$i]['id']);
+            $result[$i]['images'] = app($this->requestImageClass)->getByParams('request_id', $result[$i]['id']);
+            $result[$i]['rating'] = app($this->ratingClass)->getRatingByPayload('profile', $result[$i]['account_id']);
+            $result[$i]['pulling'] = app($this->pullingClass)->getTotalByParams('request_id', $result[$i]['id']);
+            $result[$i]['account'] = $this->retrieveAccountDetails($result[$i]['account_id']);
+            $result[$i]['works'] = app($this->workClass)->getByParams('account_id', $result[$i]['account_id']);
+            $result[$i]['cards'] = app($this->cardClass)->getByParams('account_id', $result[$i]['account_id'], $data['type']);
+            $result[$i]['guarantors'] = app($this->guarantorClass)->getByParams('sender', $result[$i]['account_id']);
+            $result[$i]['educations'] = app($this->educationClass)->getByParams('account_id', $result[$i]['account_id']);
+            $result[$i]['comakers'] = app($this->comakerClass)->getByParams($result[$i]['account_id'], $result[$i]['id']);
+            $result[$i]['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result[$i]['created_at'])->copy()->tz('Asia/Manila')->format('F j, Y H:i A');
+            $result[$i]['needed_on_human'] = Carbon::createFromFormat('Y-m-d', $result[$i]['needed_on'])->copy()->tz('Asia/Manila')->format('F j, Y');
+            $result[$i]['total'] = $this->getTotalBorrowed($result[$i]['account_id']);
+            $result[$i]['initial_amount'] = $result[$i]['amount'];
+            $result[$i]['amount'] = $amount - $invested['total'];
+            $result[$i]['invested'] = $invested['size'];
+            $result[$i]['pulling_percentage'] = intval(($result[$i]['pulling'] /  $result[$i]['initial_amount']) * 100);
+            $result[$i]['billing_per_month_human'] = $this->billingPerMonth($result[$i]['billing_per_month']);
+            $result[$i]['bookmark'] = (app($this->bookmarkClass)->checkIfExist($data['account_id'], $result[$i]['id']) == null) ? false : true;
+            $response[] = $result[$i];
+          }  
           $i++;
         }
       }
     	return response()->json(array(
-        'data' => sizeof($result) > 0 ? $result : null,
+        'data' => sizeof($response) > 0 ? $response : null,
         'size' => sizeof($size),
         'ledger' => app($this->ledgerClass)->retrievePersonal($data['account_id'])
       ));
