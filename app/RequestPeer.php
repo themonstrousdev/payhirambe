@@ -7,5 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 class RequestPeer extends APIModel
 {
   protected $table = 'request_peers';
-  protected $fillable = ['request_id', 'request_id', 'charge', 'currency', 'status'];
+  protected $fillable = ['request_id', 'account_id', 'charge', 'currency', 'status'];
 }

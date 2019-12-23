@@ -13,6 +13,9 @@ use App\Events\Message;
 class MessengerGroupController extends APIController
 {
     public $notificationClass = 'Increment\Common\Notification\Http\NotificationController';
+    public $requestValidationClass = 'App\Http\Controllers\RequestValidationController';
+    public $ratingClass = 'Increment\Common\Rating\Http\RatingController';
+    public $requestClass = 'App\Http\Controllers\RequestMoneyController';
     function __construct(){
       $this->model = new MessengerGroup();
     }
@@ -89,8 +92,11 @@ class MessengerGroupController extends APIController
           }else{
             $result[$i]['title'] = $this->retrieveAccountDetails($result[$i]['account_id']);
           }
+          $result[$i]['validations'] = app($this->requestValidationClass)->getByParams('request_id', $result[$i]['payload']);
+          $result[$i]['request'] = app($this->requestClass)->getByParams('id', $result[$i]['payload']);
           $result[$i]['thread'] = $key['title'];
           $existed[] = $result[$i]['account_id'];
+          $result[$i]['rating'] = app($this->ratingClass)->getByParams($accountId, 'request', $result[$i]['payload']);
           $result[$i]['new'] = false;
           if($key['title'] == $code){
             $active = $i;
