@@ -44,6 +44,51 @@ class NotificationSettingController extends APIController
     return $code;
   }
 
+  public function generateOTP(Request $request){
+    $data = $request->all();
+    $error = null;
+    $previous = NotificationSetting::where('account_id', '=', $data['account_id'])->get();
+    if(sizeof($previous) > 0){
+      if($previous[0]['code'] != 'BLOCKED'){
+        $code = $this->otpCodeGenerator();
+        NotificationSetting::where('account_id', '=', $data['account_id'])->update(array(
+          'code' => $code,
+          'updated_at' => Carbon::now()
+        ));
+      }else{
+        // check difference in updated
+        $currentDate = Carbon::now();
+        $blockedDate = Carbon::createFromFormat('Y-m-d H:i:s', $previous[0]['updated_at']);
+        $diff = $currentDate->diffInMinutes($blockedDate);
+        if($diff < env('OTP_BLOCK_LIMIT')){
+          $error = "Your account still blocked! Please wait for 30 minutes.";
+        }else{
+          $error = null;
+          $code = $this->otpCodeGenerator();
+          NotificationSetting::where('account_id', '=', $data['account_id'])->update(array(
+            'code' => $code,
+            'updated_at' => Carbon::now()
+          ));
+        }
+      }
+    }else{
+      $data['code'] = $this->otpCodeGenerator();
+      $data['email_login'] = 0;
+      $data['email_otp'] = 0;
+      $data['sms_login'] = 0;
+      $data['sms_otp'] = 0;
+      $data['created_at'] = Carbon::now();
+      NotificationSetting::insert($data);
+    }
+    // app('App\Http\Controllers\EmailController')->otpEmailFundTransfer($accountId, $code);
+    return response()->json(array(
+      'error' => $error,
+      'attempt' => 0,
+      'timestamps' => Carbon::now()
+    ));
+    
+  }
+
   public function otpCodeGenerator(){
     $code = substr(str_shuffle("123456789"), 0, 6);
     $codeExist = NotificationSetting::where('code', '=', $code)->get();
@@ -57,5 +102,17 @@ class NotificationSettingController extends APIController
   public function getNotificationSettings($accountId){
     $result = NotificationSetting::where('account_id', '=', $accountId)->get();
     return (sizeof($result) > 0) ? $result[0] : null;
+  }
+
+  public function blockedAccount(Request $request){
+    $data = $request->all();
+    NotificationSetting::where('account_id', '=', $data['account_id'])->update(array(
+      'code' => 'BLOCKED',
+      'updated_at' => Carbon::now()
+    ));
+    return response()->json(array(
+      'blocked' => true,
+      'timestamps' => Carbon::now()
+    ));
   }
 }
