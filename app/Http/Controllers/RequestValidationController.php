@@ -34,7 +34,7 @@ class RequestValidationController extends APIController
     foreach ($requirements as $key) {
       $validations = RequestValidation::where($column, '=', $value)->where('payload', '=', $key['payload'])->get();
       $requirements[$i]['validations'] = sizeof($validations) > 0 ? $validations[0] : null;
-      if($flag == true && sizeof($validations) == 0){
+      if($flag == true && $requirements[$i]['validations'] == null){
         $flag = false;
       }
       if($transferStatus == 'approved' && sizeof($validations) > 0 && $validations[0]['status'] != 'approved'){

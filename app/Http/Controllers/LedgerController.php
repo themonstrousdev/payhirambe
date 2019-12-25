@@ -10,7 +10,7 @@ class LedgerController extends APIController
     function __construct(){
       $this->model = new Ledger();
     }
-
+    public $notificationClass = 'Increment\Common\Notification\Http\NotificationController';
     public function dashboard($accountId){
       return array(
         'ledger' => $this->retrievePersonal($accountId),
@@ -72,6 +72,27 @@ class LedgerController extends APIController
       return $ledger->id;
     }
 
+    public function processPayment($data, $email, $notification){
+      $code = $this->generateCode();
+      $ledger = new Ledger();
+      $ledger->code = $code;
+      $ledger->account_id = $data['account_id'];
+      $ledger->amount = $data['amount'];
+      $ledger->description = $data['description'];
+      $ledger->payload = $data['payload'];
+      $ledger->payload_value = $data['payload_value'];
+      $ledger->created_at = Carbon::now();
+      $ledger->save();
+      // $details = array(
+      //   'title' => $data['description'].$data['currency'].' '.number_format(($data['amount'] * (-1)), 2).$email['to'],
+      //   'transaction_id' => $code
+      // );
+      // app('App\Http\Controllers\EmailController')->ledger($data['account_id'], $details, $email['subject']);  
+      
+      app($this->notificationClass)->createByParams($notification);
+      return $ledger->id;
+    }
+    
     public function generateCode(){
       $code = substr(str_shuffle("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 32);
       $codeExist = Ledger::where('code', '=', $code)->get();

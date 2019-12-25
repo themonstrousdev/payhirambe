@@ -69,6 +69,41 @@ class RequestMoneyController extends APIController
     	return $this->response();
     }
 
+    public function manageRequestByThread(Request $request){
+      $data = $request->all();
+      $error = null;
+      $responseData = null;
+      $result = RequestMoney::where('code', '=', $data['code'])->where('account_id', '=', $data['account_id'])->where('status', '=', 0)->get();
+      if(sizeof($result) > 0){
+        $result = $result[0];
+        $result['account'] = $this->retrieveAccountDetails($result['account_id']);
+        $peerApproved = app($this->requestPeerClass)->getApprovedByParams('request_id', $result['id']);
+        if($peerApproved != null){
+          $response = $this->processPaymentByType($result, $peerApproved);
+          if($response == true){
+            // update status of the requet
+            RequestMoney::where('code', '=', $data['code'])->update(array(
+              'status' => 2,
+              'updated_at' => Carbon::now()
+            ));
+            $responseData = true;
+          }else{
+            $error = 'Unabled to process the payment!';
+          }
+        }else{
+          $error = 'No peer was selected! Invalid accessed';
+        }
+      }else{
+        $error = 'Request was not found! Invalid accessed!';
+      }
+
+      return response()->json(array(
+        'error' => $error,
+        'data' => $responseData,
+        'timestamps' => Carbon::now()
+      ));
+    }
+
     public function generateCode(){
       $code = substr(str_shuffle("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 32);
       $codeExist = RequestMoney::where('code', '=', $code)->get();
@@ -76,6 +111,101 @@ class RequestMoneyController extends APIController
         $this->generateCode();
       }else{
         return $code;
+      }
+    }
+
+    public function processPaymentByType($request, $charge){
+      $data = null;
+      $email = null;
+      $receiverData = null;
+      $receiverEmail = null;
+      $notification = null;
+      switch (intval($request['type'])) {
+        case 1:
+          $data = array(
+            'account_id'    => $request['account_id'],
+            'amount'        => (doubleval($request['amount']) * -1),
+            'currency'      => $request['currency'],
+            'description'   => 'Sending from Money Transfer',
+            'payload'       => 'request',
+            'payload_value' => $request['code']
+          );
+          $email = array(
+            'username'      => $charge['account']['username'],
+            'subject'       => 'Sending from Money Transfer',
+            'status'        => 'to'
+          );
+          $receiverData = array(
+            'account_id'    => $charge['account_id'],
+            'amount'        => (doubleval($request['amount']) * 1),
+            'currency'      => $request['currency'],
+            'description'   => 'Receiving from Money Transfer',
+            'payload'       => 'request',
+            'payload_value' => $request['code']
+          );
+          $receiverEmail = array(
+            'username'      => $request['account']['username'],
+            'subject'       => 'Receiving from Money Transfer',
+            'status'        => 'from'
+          );
+          break;
+        case 2:
+          // withdrawal
+          # code...
+          break;
+        case 3:
+          // Deposit
+          # code...
+          break;
+      }
+      $notification = array(
+        'to'    => $request['account_id'],
+        'from'  => $charge['account_id'],
+        'payload' => 'ledger',
+        'payload_value' => $request['code'],
+        'route' => '/dashboard',
+        'created_at' => Carbon::now()
+      );
+      if($data != null && $email != null){
+        // process sender
+        $ledger = app($this->ledgerClass)->processPayment($data, $email, $notification);
+        if($ledger){
+          // process sender charge
+          $data['amount'] = (doubleval($charge['charge']) * -1);
+          $data['currency'] = $charge['currency'];
+          $data['description'] = $data['description'].' Charge';
+          $email['subject'] = $email['subject'].' Charge';
+          $ledger = app($this->ledgerClass)->processPayment($data, $email, $notification);
+          if($ledger){
+            // process receiver
+            $notification['to'] = $charge['account_id'];
+            $notification['from'] = $request['account_id'];
+            $ledger = app($this->ledgerClass)->processPayment($receiverData, $receiverEmail, $notification);
+            if($ledger){
+              // process receiver charge
+              $charges = (doubleval($charge['charge']) * 1) * env('CHARGE_RATE_PROCESSOR');
+              $receiverData['amount'] = $charges;
+              $receiverData['currency'] = $charge['currency'];
+              $receiverData['description'] = $data['description'];
+              $receiverEmail['subject'] = $email['subject'];
+              $ledger = app($this->ledgerClass)->processPayment($receiverData, $receiverEmail, $notification);
+
+              // process receiver charge for payhiram
+              $notification['to'] = env('PAYHIRAM_ACCOUNT');
+              $notification['from'] = $charge['account_id'];
+              $charges = (doubleval($charge['charge']) * 1) - $charges;
+              $receiverData['account_id'] = env('PAYHIRAM_ACCOUNT'); // account_id of payhiram
+              $receiverData['amount'] = $charges;
+              $receiverData['currency'] = $charge['currency'];
+              $receiverData['description'] = $data['description'];
+              $receiverEmail['subject'] = $email['subject'];
+              $ledger = app($this->ledgerClass)->processPayment($receiverData, $receiverEmail, $notification);
+            }
+          }
+        }
+        return true;
+      }else{
+        return false;
       }
     }
 
