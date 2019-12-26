@@ -8,4 +8,8 @@ class RequestImage extends APIModel
 {
   protected $table = 'request_images';
   protected $fillable = ['request_id', 'url'];
+
+  public function getRequestIdAttribute($value){
+    return intval($value);
+  }
 }

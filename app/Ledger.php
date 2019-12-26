@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Ledger extends APIModel
 {
   protected $table = 'ledgers';
-  protected $fillable = ['account_id', 'code', 'amount', 'description', 'payload', 'payload_value'];
+  protected $fillable = ['account_id', 'code', 'amount', 'description', 'payload', 'payload_value', 'currency'];
 
   public function getAmountAttribute($value){
     return doubleval($value);

@@ -8,4 +8,8 @@ class AccountCard extends APIModel
 {
   protected $table = 'account_cards';
   protected $fillable = ['account_id', 'payload', 'payload_value'];
+
+  public function getAccountIdAttribute($value){
+    return intval($value);
+  }
 }

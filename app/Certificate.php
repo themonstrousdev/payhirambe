@@ -8,4 +8,8 @@ class Certificate extends APIModel
 {
   protected $table = 'certificates';
   protected $fillable = ['account_id', 'payload', 'payload_value', 'url'];
+
+  public function getAccountIdAttribute($value){
+    return intval($value);
+  }
 }

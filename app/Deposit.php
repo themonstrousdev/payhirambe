@@ -8,5 +8,9 @@ class Deposit extends APIModel
 {
     protected $table = 'deposits';
     protected $fillable = ['code', 'account_id', 'amount', 'description'];
+
+    public function getAccountIdAttribute($value){
+      return intval($value);
+    }
 }
 
