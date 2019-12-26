@@ -392,17 +392,17 @@ class RequestMoneyController extends APIController
 
     public function getTotalBorrowed($accountId){
     	$result = RequestMoney::where('account_id', '=', $accountId)->where('status', '=', 1)->sum('amount');
-    	return $result;
+    	return doubleval($result);
     }
 
     public function total(){
       $result = RequestMoney::where('status', '=', 0)->sum('amount');
-      return $result;
+      return doubleval($result);
     }
 
     public function approved(){
       $result = RequestMoney::where('status', '=', 1)->sum('amount');
-      return $result;
+      return doubleval($result);
     }
 
     public function requestStatus($accountId){
