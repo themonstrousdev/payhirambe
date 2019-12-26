@@ -45,7 +45,7 @@ class LedgerController extends APIController
 
     public function retrievePersonal($accountId){
       $result = Ledger::where('account_id', '=', $accountId)->sum('amount');
-      return $result;
+      return doubleval($result);
     }
 
     public function addToLedger($accountId, $amount, $description, $payload, $payloadValue, $to){

@@ -72,13 +72,16 @@ class NotificationSettingController extends APIController
         }
       }
     }else{
-      $data['code'] = $this->otpCodeGenerator();
-      $data['email_login'] = 0;
-      $data['email_otp'] = 0;
-      $data['sms_login'] = 0;
-      $data['sms_otp'] = 0;
-      $data['created_at'] = Carbon::now();
-      NotificationSetting::insert($data);
+      $insertData = array(
+        'code'        => $this->otpCodeGenerator(),
+        'account_id'  => $data['account_id'],
+        'email_login' => 0,
+        'email_otp'   => 0,
+        'sms_login'   => 0,
+        'sms_otp'     => 0,
+        'created_at'  => Carbon::now()
+      );
+      NotificationSetting::insert($insertData);
     }
     // app('App\Http\Controllers\EmailController')->otpEmailFundTransfer($accountId, $code);
     return response()->json(array(
