@@ -51,11 +51,7 @@ return [
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
             'strict' => true,
-            'engine' => null,
-            'options' => array(
-                PDO::ATTR_STRINGIFY_FETCHES => false,
-                PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE => true
-            ),
+            'engine' => null
         ],
 
         'pgsql' => [
