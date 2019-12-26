@@ -105,6 +105,6 @@ class LedgerController extends APIController
 
     public function available(){
       $result = Ledger::sum('amount');
-      return $result;
+      return doubleval($result);
     }
 }
