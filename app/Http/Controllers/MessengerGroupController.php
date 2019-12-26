@@ -16,6 +16,7 @@ class MessengerGroupController extends APIController
     public $requestValidationClass = 'App\Http\Controllers\RequestValidationController';
     public $ratingClass = 'Increment\Common\Rating\Http\RatingController';
     public $requestClass = 'App\Http\Controllers\RequestMoneyController';
+    public $requestPeerClass = 'App\Http\Controllers\RequestPeerController';
     function __construct(){
       $this->model = new MessengerGroup();
     }
@@ -94,6 +95,7 @@ class MessengerGroupController extends APIController
           }
           $result[$i]['validations'] = app($this->requestValidationClass)->getByParams('request_id', $result[$i]['payload']);
           $result[$i]['request'] = app($this->requestClass)->getByParams('id', $result[$i]['payload']);
+          $result[$i]['peer'] = app($this->requestPeerClass)->getApprovedByParams('request_id', $result[$i]['payload']);
           $result[$i]['thread'] = $key['title'];
           $existed[] = $result[$i]['account_id'];
           $result[$i]['rating'] = app($this->ratingClass)->getByParams($accountId, 'request', $result[$i]['payload']);

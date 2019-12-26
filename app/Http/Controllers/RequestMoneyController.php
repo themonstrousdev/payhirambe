@@ -23,7 +23,8 @@ class RequestMoneyController extends APIController
     public $requestImageClass = 'App\Http\Controllers\RequestImageController';
     public $requestPeerClass = 'App\Http\Controllers\RequestPeerController';
     public $ledgerClass = 'App\Http\Controllers\LedgerController';
-    
+    public $requestData = null;
+    public $chargeData = null;
     function __construct(){  
     	$this->model = new RequestMoney();
       $this->notRequired = array(
@@ -73,13 +74,24 @@ class RequestMoneyController extends APIController
       $data = $request->all();
       $error = null;
       $responseData = null;
-      $result = RequestMoney::where('code', '=', $data['code'])->where('account_id', '=', $data['account_id'])->where('status', '=', 0)->get();
+      $result = RequestMoney::where('code', '=', $data['code'])->where('status', '=', 0)->get();
       if(sizeof($result) > 0){
         $result = $result[0];
+        // get approved peer
+
         $result['account'] = $this->retrieveAccountDetails($result['account_id']);
         $peerApproved = app($this->requestPeerClass)->getApprovedByParams('request_id', $result['id']);
         if($peerApproved != null){
-          $response = $this->processPaymentByType($result, $peerApproved);
+          if($result['account_id'] != $data['account_id'] && $peerApproved['account_id'] != $data['account_id']){
+            return response()->json(array(
+              'error' => 'Invalid accessed!',
+              'data' => null,
+              'timestamps' => Carbon::now()
+            ));
+          }
+          $this->requestData = $result;
+          $this->chargeData = $peerApproved;
+          $response = $this->processPaymentByType();
           if($response == true){
             // update status of the requet
             RequestMoney::where('code', '=', $data['code'])->update(array(
@@ -114,99 +126,156 @@ class RequestMoneyController extends APIController
       }
     }
 
-    public function processPaymentByType($request, $charge){
-      $data = null;
-      $email = null;
-      $receiverData = null;
-      $receiverEmail = null;
-      $notification = null;
-      switch (intval($request['type'])) {
-        case 1:
-          $data = array(
-            'account_id'    => $request['account_id'],
-            'amount'        => (doubleval($request['amount']) * -1),
-            'currency'      => $request['currency'],
-            'description'   => 'Sending from Money Transfer',
-            'payload'       => 'request',
-            'payload_value' => $request['code']
-          );
-          $email = array(
-            'username'      => $charge['account']['username'],
-            'subject'       => 'Sending from Money Transfer',
-            'status'        => 'to'
-          );
-          $receiverData = array(
-            'account_id'    => $charge['account_id'],
-            'amount'        => (doubleval($request['amount']) * 1),
-            'currency'      => $request['currency'],
-            'description'   => 'Receiving from Money Transfer',
-            'payload'       => 'request',
-            'payload_value' => $request['code']
-          );
-          $receiverEmail = array(
-            'username'      => $request['account']['username'],
-            'subject'       => 'Receiving from Money Transfer',
-            'status'        => 'from'
-          );
-          break;
-        case 2:
-          // withdrawal
-          # code...
-          break;
-        case 3:
-          // Deposit
-          # code...
-          break;
+    public function processPaymentByType(){
+      if($this->requestData == null || $this->chargeData == null){
+        return false;
       }
+      $type = intval($this->requestData['type']);
+      if($type == 1 || $type == 2){
+        $description = ($type == 1) ? 'money transfer request' : 'withdrawal request';
+        // Credit request amount from requestor
+        $this->addToLedger(array(
+          'account_id'  => $this->requestData['account_id'],
+          'amount'      => ($this->requestData['amount'] * -1),
+          'description' => 'Credit from '.$description,
+          'status'      => 'to',
+          'currency'    => $this->requestData['currency'],
+          'username'    => $this->chargeData['account']['username'],
+          'to'          => $this->requestData['account_id'],
+          'from'        => $this->chargeData['account_id']
+        ));
+
+        // Credit charge amount from the requestor
+        $this->addToLedger(array(
+          'account_id'  => $this->requestData['account_id'],
+          'amount'      => ($this->chargeData['charge'] * -1),
+          'description' => 'Credit: Service charge from '.$description,
+          'status'      => 'to',
+          'currency'    => $this->chargeData['currency'],
+          'username'    => $this->chargeData['account']['username'],
+          'to'          => $this->requestData['account_id'],
+          'from'        => $this->chargeData['account_id']
+        ));
+
+        // Debit request amount to the processor
+        $this->addToLedger(array(
+          'account_id'  => $this->chargeData['account_id'],
+          'amount'      => $this->requestData['amount'],
+          'description' => 'Debit from '.$description,
+          'status'      => 'from',
+          'currency'    => $this->requestData['currency'],
+          'username'    => $this->requestData['account']['username'],
+          'to'          => $this->chargeData['account_id'],
+          'from'        => $this->requestData['account_id']
+        ));
+
+        // Debit charge amount to the processor
+        $chargeAmountProcessor = $this->chargeData['charge'] * env('CHARGE_RATE_PROCESSOR');
+        $this->addToLedger(array(
+          'account_id'  => $this->chargeData['account_id'],
+          'amount'      => $chargeAmountProcessor,
+          'description' => 'Debit: Service charge '.$description,
+          'status'      => 'from',
+          'currency'    => $this->chargeData['currency'],
+          'username'    => $this->requestData['account']['username'],
+          'to'          => $this->chargeData['account_id'],
+          'from'        => $this->requestData['account_id']
+        ));
+
+        // Debit charge amount to payhiram
+        $chargeAmountPayhiram = $this->chargeData['charge'] * env('CHARGE_RATE_PAYHIRAM');
+        $this->addToLedger(array(
+          'account_id'  => env('PAYHIRAM_ACCOUNT'),
+          'amount'      => $chargeAmountPayhiram,
+          'description' => 'Debit: Service charge from '.$description,
+          'status'      => 'from',
+          'currency'    => $this->chargeData['currency'],
+          'username'    => $this->requestData['account']['username'],
+          'to'          => env('PAYHIRAM_ACCOUNT'),
+          'from'        => $this->requestData['account_id']
+        ));
+        return true;
+      }else if($type == 3){
+        // Deposit
+        // Credit request amount from sender: processor
+        $this->addToLedger(array(
+          'account_id'  => $this->chargeData['account_id'],
+          'amount'      => ($this->requestData['amount'] * -1),
+          'description' => 'Credit from deposit request',
+          'status'      => 'to',
+          'currency'    => $this->requestData['currency'],
+          'username'    => $this->requestData['account']['username'],
+          'to'          => $this->chargeData['account_id'],
+          'from'        => $this->requestData['account_id']
+        ));
+
+        // Credit charge amount from sender: processor with payhiram rate
+        $chargeAmount = $this->chargeData['charge'] * env('CHARGE_RATE_PAYHIRAM');
+        $this->addToLedger(array(
+          'account_id'  => $this->chargeData['account_id'],
+          'amount'      => ($chargeAmount * -1),
+          'description' => 'Credit: Service charge from deposit request',
+          'status'      => 'to',
+          'currency'    => $this->chargeData['currency'],
+          'username'    => $this->requestData['account']['username'],
+          'to'          => $this->chargeData['account_id'],
+          'from'        => $this->requestData['account_id']
+        ));
+
+        // Debit request amount to receiver: requestor from sender: processor
+        $this->addToLedger(array(
+          'account_id'  => $this->requestData['account_id'],
+          'amount'      => $this->requestData['amount'],
+          'description' => 'Debit from deposit request',
+          'status'      => 'from',
+          'currency'    => $this->requestData['currency'],
+          'username'    => $this->chargeData['account']['username'],
+          'to'          => $this->requestData['account_id'],
+          'from'        => $this->chargeData['account_id']
+        ));
+
+        // Debit charge amount to payhiram from processor
+        $chargeAmount = $this->chargeData['charge'] * env('CHARGE_RATE_PAYHIRAM');
+        $this->addToLedger(array(
+          'account_id'  => env('PAYHIRAM_ACCOUNT'),
+          'amount'      => $chargeAmount,
+          'description' => 'Debit: Service charge from deposit request',
+          'status'      => 'from',
+          'currency'    => $this->chargeData['currency'],
+          'username'    => $this->chargeData['account']['username'],
+          'to'          => env('PAYHIRAM_ACCOUNT'),
+          'from'        => $this->chargeData['account_id']
+        ));
+        return true;
+      }
+      return false;
+    }
+
+    public function addToLedger($data){
+      $ledgerData = array(
+        'account_id'    => $data['account_id'],
+        'amount'        => $data['amount'],
+        'currency'      => $data['currency'],
+        'description'   => $data['description'],
+        'payload'       => 'request',
+        'payload_value' => $this->requestData['code']
+      );
+
+      $email = array(
+        'username'      => $data['username'],
+        'subject'       => $data['description'],
+        'status'        => $data['status']
+      );
+
       $notification = array(
-        'to'    => $request['account_id'],
-        'from'  => $charge['account_id'],
+        'to'    => $data['to'],
+        'from'  => $data['from'],
         'payload' => 'ledger',
-        'payload_value' => $request['code'],
+        'payload_value' => $this->requestData['code'],
         'route' => '/dashboard',
         'created_at' => Carbon::now()
       );
-      if($data != null && $email != null){
-        // process sender
-        $ledger = app($this->ledgerClass)->processPayment($data, $email, $notification);
-        if($ledger){
-          // process sender charge
-          $data['amount'] = (doubleval($charge['charge']) * -1);
-          $data['currency'] = $charge['currency'];
-          $data['description'] = $data['description'].' Charge';
-          $email['subject'] = $email['subject'].' Charge';
-          $ledger = app($this->ledgerClass)->processPayment($data, $email, $notification);
-          if($ledger){
-            // process receiver
-            $notification['to'] = $charge['account_id'];
-            $notification['from'] = $request['account_id'];
-            $ledger = app($this->ledgerClass)->processPayment($receiverData, $receiverEmail, $notification);
-            if($ledger){
-              // process receiver charge
-              $charges = (doubleval($charge['charge']) * 1) * env('CHARGE_RATE_PROCESSOR');
-              $receiverData['amount'] = $charges;
-              $receiverData['currency'] = $charge['currency'];
-              $receiverData['description'] = $data['description'];
-              $receiverEmail['subject'] = $email['subject'];
-              $ledger = app($this->ledgerClass)->processPayment($receiverData, $receiverEmail, $notification);
-
-              // process receiver charge for payhiram
-              $notification['to'] = env('PAYHIRAM_ACCOUNT');
-              $notification['from'] = $charge['account_id'];
-              $charges = (doubleval($charge['charge']) * 1) - $charges;
-              $receiverData['account_id'] = env('PAYHIRAM_ACCOUNT'); // account_id of payhiram
-              $receiverData['amount'] = $charges;
-              $receiverData['currency'] = $charge['currency'];
-              $receiverData['description'] = $data['description'];
-              $receiverEmail['subject'] = $email['subject'];
-              $ledger = app($this->ledgerClass)->processPayment($receiverData, $receiverEmail, $notification);
-            }
-          }
-        }
-        return true;
-      }else{
-        return false;
-      }
+      app($this->ledgerClass)->processPayment($ledgerData, $email, $notification);
     }
 
     public function retrieve(Request $request){
