@@ -31,9 +31,15 @@ class RequestValidationController extends APIController
     $i = 0;
     $flag = true;
     $transferStatus = 'approved';
+    $initialFlag = false;
     foreach ($requirements as $key) {
       $validations = RequestValidation::where($column, '=', $value)->where('payload', '=', $key['payload'])->get();
       $requirements[$i]['validations'] = sizeof($validations) > 0 ? $validations[0] : null;
+
+      if($initialFlag == false && sizeof($validations) > 0){
+        $initialFlag = true;
+      }
+      
       if($flag == true && $requirements[$i]['validations'] == null){
         $flag = false;
       }
@@ -46,7 +52,7 @@ class RequestValidationController extends APIController
     return array(
       'complete_status' => $flag,
       'requirements' => $requirements,
-      'transfer_status' => $transferStatus
+      'transfer_status' => ($initialFlag == true) ? $transferStatus : 'initial'
     );
   }
 
