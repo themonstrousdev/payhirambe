@@ -52,6 +52,10 @@ return [
             'prefix' => '',
             'strict' => true,
             'engine' => null,
+            'options' => array(
+                PDO::ATTR_STRINGIFY_FETCHES => false,
+                PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE => true
+            ),
         ],
 
         'pgsql' => [
@@ -76,10 +80,6 @@ return [
             'password' => env('DB_PASSWORD', ''),
             'charset' => 'utf8',
             'prefix' => '',
-            'options' => array(
-                PDO::ATTR_STRINGIFY_FETCHES => false,
-                PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE => true
-            ),
         ],
 
     ],
