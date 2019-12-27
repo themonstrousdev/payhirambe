@@ -48,6 +48,8 @@ class Notifications implements ShouldQueue
             case 'notifications':
                 $this->pusher->trigger('payhiram', 'Notifications', $this->data);
                 break;
+            case 'message':
+                $this->pusher->trigger('payhiram', 'Message', $this->data);
             default:
                 # code...
                 break;
