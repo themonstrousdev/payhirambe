@@ -5,6 +5,7 @@ use Increment\Account\Models\Account;
 use Illuminate\Http\Request;
 use App\RequestMoney;
 use Carbon\Carbon;
+use App\Jobs\Notifications;
 class RequestMoneyController extends APIController
 {
 
@@ -98,6 +99,12 @@ class RequestMoneyController extends APIController
               'status' => 2,
               'updated_at' => Carbon::now()
             ));
+
+            $pushNotif = array(
+              'messenger_group_id' => $data['messenger_group_id'],
+              'account_id'         => $data['account_id']
+            );
+            Notifications::dispatch('validation', $pushNotif);
             $responseData = true;
           }else{
             $error = 'Unabled to process the payment!';
