@@ -50,8 +50,10 @@ class Notifications implements ShouldQueue
                 break;
             case 'message':
                 $this->pusher->trigger('payhiram', 'Message', $this->data);
+                break;
             case 'validation':
                 $this->pusher->trigger('payhiram', 'Validation', $this->data);
+                break;
             default:
                 # code...
                 break;
