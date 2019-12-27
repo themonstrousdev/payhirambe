@@ -69,7 +69,7 @@ class RequestValidationController extends APIController
       'status'  => $data['status']
     );
     $this->updateDB($updateData);
-    Notifications::dispatch('validations', $data['messages']);
+    Notifications::dispatch('validation', $data['messages']);
     return $this->response();
   }
 }
