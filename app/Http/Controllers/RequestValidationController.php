@@ -62,6 +62,19 @@ class RequestValidationController extends APIController
     return (sizeof($result) > 0) ? $result[0] : null;
   }
 
+  public function create(Request $request){
+    $data = $request->all();
+    $insertData = array(
+      'account_id'  => $data['account_id'],
+      'payload'     => $data['payload'],
+      'request_id'  => $data['request_id'],
+      'status'      => $data['status']
+    );
+    $this->insertDB($insertData);
+    Notifications::dispatch('validation', $data['messages']);
+    return $this->response();
+  }
+
   public function update(Request $request){
     $data = $request->all();
     $updateData = array(
