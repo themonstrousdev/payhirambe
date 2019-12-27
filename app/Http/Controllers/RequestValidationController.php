@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\RequestValidation;
+use App\Jobs\Notifications;
 class RequestValidationController extends APIController
 {   
   function __construct(){
@@ -59,5 +60,16 @@ class RequestValidationController extends APIController
   public function getDetailsByParams($column, $value){
     $result = RequestValidation::where($column, '=', $value)->get();
     return (sizeof($result) > 0) ? $result[0] : null;
+  }
+
+  public function update(Request $request){
+    $data = $request->all();
+    $updateData = array(
+      'id'      => $data['id'],
+      'status'  => $data['status']
+    );
+    $this->updateDB($updateData);
+    Notifications::dispatch('validations', $data['messages']);
+    return $this->response();
   }
 }
