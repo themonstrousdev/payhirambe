@@ -84,6 +84,7 @@ class MessengerGroupController extends APIController
           $result[$i]['id'] = intval($result[$i]['id']);
           $result[$i]['account_id'] = intval($result[$i]['account_id']);
           $result[$i]['account_details'] = $this->retrieveAccountDetails($result[$i]['account_id']);
+          $result[$i]['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result[$i]['created_at'])->copy()->tz('Asia/Manila')->format('F j, Y H:i A');
           $result[$i]['members'] = $this->getMembers($result[$i]['id'], null);
           $members = $result[$i]['members']['result'];
           if(sizeof($members) > 0){
