@@ -81,7 +81,7 @@ class MessengerGroupController extends APIController
       if(sizeof($result) > 0){
         $i = 0;
         foreach ($result as $key) {
-          $result[$i] = $this->manageResult($result[$i]);
+          $result[$i] = $this->manageResult($result[$i], $accountId, $key['title']);
           $existed[] = $result[$i]['account_id'];
           if($key['title'] == $code){
             $active = $i;
@@ -108,14 +108,14 @@ class MessengerGroupController extends APIController
       $this->retrieveDB($data);
       $result = $this->response['data'];
       if(sizeof($result) > 0){
-        $this->response['data'] = $this->manageResult($result[0], $data['account_id']);
+        $this->response['data'] = $this->manageResult($result[0], $data['account_id'], $result[0]['title']);
       }else{
         $this->response['data'] = null;
       }
       return $this->response();
     } 
 
-    public function manageResult($result, $accountId){
+    public function manageResult($result, $accountId, $title){
       $result['id'] = intval($result['id']);
       $result['account_id'] = intval($result['account_id']);
       $result['account_details'] = $this->retrieveAccountDetails($result['account_id']);
@@ -134,7 +134,7 @@ class MessengerGroupController extends APIController
       $result['validations'] = app($this->requestValidationClass)->getByParams('request_id', $result['payload']);
       $result['request'] = app($this->requestClass)->getByParams('id', $result['payload']);
       $result['peer'] = app($this->requestPeerClass)->getApprovedByParams('request_id', $result['payload']);
-      $result['thread'] = $key['title'];
+      $result['thread'] = $title;
       $result['rating'] = app($this->ratingClass)->getByParams($accountId, 'request', $result['payload']);
       $result['new'] = false;
       return $result;
