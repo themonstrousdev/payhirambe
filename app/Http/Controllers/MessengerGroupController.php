@@ -81,28 +81,8 @@ class MessengerGroupController extends APIController
       if(sizeof($result) > 0){
         $i = 0;
         foreach ($result as $key) {
-          $result[$i]['id'] = intval($result[$i]['id']);
-          $result[$i]['account_id'] = intval($result[$i]['account_id']);
-          $result[$i]['account_details'] = $this->retrieveAccountDetails($result[$i]['account_id']);
-          $result[$i]['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result[$i]['updated_at'] != null ?  $result[$i]['updated_at'] : $result[$i]['created_at'])->copy()->tz('Asia/Manila')->format('F j, Y h:i A');
-          $result[$i]['members'] = $this->getMembers($result[$i]['id'], null);
-          $members = $result[$i]['members']['result'];
-          if(sizeof($members) > 0){
-            if(intval($data['account_id']) == intval($members[0]['account_id'])){
-              $result[$i]['title'] = $this->retrieveAccountDetails($members[1]['account_id']);
-            }else{
-              $result[$i]['title'] = $this->retrieveAccountDetails($result[$i]['account_id']);
-            }
-          }else{
-            $result[$i]['title'] = $this->retrieveAccountDetails($result[$i]['account_id']);
-          }
-          $result[$i]['validations'] = app($this->requestValidationClass)->getByParams('request_id', $result[$i]['payload']);
-          $result[$i]['request'] = app($this->requestClass)->getByParams('id', $result[$i]['payload']);
-          $result[$i]['peer'] = app($this->requestPeerClass)->getApprovedByParams('request_id', $result[$i]['payload']);
-          $result[$i]['thread'] = $key['title'];
+          $result[$i] = $this->manageResult($result[$i]);
           $existed[] = $result[$i]['account_id'];
-          $result[$i]['rating'] = app($this->ratingClass)->getByParams($accountId, 'request', $result[$i]['payload']);
-          $result[$i]['new'] = false;
           if($key['title'] == $code){
             $active = $i;
             $result[$i]['flag'] = true;
@@ -120,6 +100,44 @@ class MessengerGroupController extends APIController
         'error' => null,
         'timestamps'  => Carbon::now()
       ));
+    }
+
+    public function retrieveByParams(Request $request){
+      $data = $request->all();
+      $this->model = new MessengerGroup();
+      $this->retrieveDB($data);
+      $result = $this->response['data'];
+      if(sizeof($result) > 0){
+        $this->response['data'] = $this->manageResult($result[0], $data['account_id']);
+      }else{
+        $this->response['data'] = null;
+      }
+      return $this->response();
+    } 
+
+    public function manageResult($result, $accountId){
+      $result['id'] = intval($result['id']);
+      $result['account_id'] = intval($result['account_id']);
+      $result['account_details'] = $this->retrieveAccountDetails($result['account_id']);
+      $result['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result['updated_at'] != null ?  $result['updated_at'] : $result['created_at'])->copy()->tz('Asia/Manila')->format('F j, Y h:i A');
+      $result['members'] = $this->getMembers($result['id'], null);
+      $members = $result['members']['result'];
+      if(sizeof($members) > 0){
+        if(intval($accountId) == intval($members[0]['account_id'])){
+          $result['title'] = $this->retrieveAccountDetails($members[1]['account_id']);
+        }else{
+          $result['title'] = $this->retrieveAccountDetails($result['account_id']);
+        }
+      }else{
+        $result['title'] = $this->retrieveAccountDetails($result['account_id']);
+      }
+      $result['validations'] = app($this->requestValidationClass)->getByParams('request_id', $result['payload']);
+      $result['request'] = app($this->requestClass)->getByParams('id', $result['payload']);
+      $result['peer'] = app($this->requestPeerClass)->getApprovedByParams('request_id', $result['payload']);
+      $result['thread'] = $key['title'];
+      $result['rating'] = app($this->ratingClass)->getByParams($accountId, 'request', $result['payload']);
+      $result['new'] = false;
+      return $result;
     }
 
     public function getMembers($messengerGroupId, $username){

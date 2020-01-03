@@ -106,6 +106,7 @@ $route = env('PACKAGE_ROUTE', '').'/custom_messenger_groups/';
 $controller = 'MessengerGroupController@';
 Route::post($route.'create', $controller."create");
 Route::post($route.'retrieve', $controller."retrieve");
+Route::post($route.'retrieve_by_params', $controller."retrieveByParams");
 
 // Requests
 $route = env('PACKAGE_ROUTE', '').'/requests/';
