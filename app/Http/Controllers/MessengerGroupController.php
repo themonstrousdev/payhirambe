@@ -49,6 +49,16 @@ class MessengerGroupController extends APIController
         $member->created_at = Carbon::now();
         $member->save();
 
+        $message = new MessengerMessage();
+        $message->messenger_group_id = $id;
+        $message->account_id = $creator;
+        $message->payload = 'text';
+        $message->payload_value = null;
+        $message->message = 'Greetings!';
+        $message->status = 0;
+        $message->created_at = Carbon::now();
+        $message->save();
+
         $parameter = array(
           'to' => $memberData,
           'from' => $creator,
