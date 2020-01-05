@@ -42,7 +42,7 @@ class RequestValidationController extends APIController
         $initialFlag = true;
       }
       
-      if(($flag == true && $requirements[$i]['validations'] == null) || ($flag == true && sizeof($validations) > 0 && $validations[0]['status'] != 'approved')){
+      if($flag == true && $requirements[$i]['validations'] == null){
         $flag = false;
       }
       if($transferStatus == 'approved' && sizeof($validations) > 0 && $validations[0]['status'] != 'approved'){
