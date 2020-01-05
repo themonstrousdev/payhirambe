@@ -18,6 +18,7 @@ class MessengerGroupController extends APIController
     public $ratingClass = 'Increment\Common\Rating\Http\RatingController';
     public $requestClass = 'App\Http\Controllers\RequestMoneyController';
     public $requestPeerClass = 'App\Http\Controllers\RequestPeerController';
+    public $messengerMessagesClass = 'Increment\Messenger\Http\MessengerMessageController';
     function __construct(){
       $this->model = new MessengerGroup();
     }
@@ -131,6 +132,7 @@ class MessengerGroupController extends APIController
       $messengerGroup = null;
       if(sizeof($result) > 0){
         $messengerGroup = $this->manageResult($result[0], $accountId, $result[0]['title']);
+        $messengerGroup['messages'] = app($this->messengerMessagesClass)->getByParams('messenger_group_id', $id);
         Notifications::dispatch('validation', $messengerGroup->toArray());
       }else{
         $messengerGroup = null;
