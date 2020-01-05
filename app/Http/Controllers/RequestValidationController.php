@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\RequestValidation;
-use App\Jobs\Notifications;
 class RequestValidationController extends APIController
-{   
+{  
+
+  public $messengerGroupClass = 'App\Http\Controllers\MessengerGroupController';
   function __construct(){
     $this->model = new RequestValidation();
   }
@@ -71,7 +72,7 @@ class RequestValidationController extends APIController
       'status'      => $data['status']
     );
     $this->insertDB($insertData);
-    Notifications::dispatch('validation', $data['messages']);
+    app($this->messengerGroupClass)->broadcastByParams($data['messages']['messenger_group_id'], $data['messages']['account_id']);
     return $this->response();
   }
 
@@ -82,7 +83,7 @@ class RequestValidationController extends APIController
       'status'  => $data['status']
     );
     $this->updateDB($updateData);
-    Notifications::dispatch('validation', $data['messages']);
+    app($this->messengerGroupClass)->broadcastByParams($data['messages']['messenger_group_id'], $data['messages']['account_id']);
     return $this->response();
   }
 }

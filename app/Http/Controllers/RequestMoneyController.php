@@ -24,6 +24,7 @@ class RequestMoneyController extends APIController
     public $requestImageClass = 'App\Http\Controllers\RequestImageController';
     public $requestPeerClass = 'App\Http\Controllers\RequestPeerController';
     public $ledgerClass = 'App\Http\Controllers\LedgerController';
+    public $messengerGroupClass = 'App\Http\Controllers\MessengerGroupController';
     public $requestData = null;
     public $chargeData = null;
     function __construct(){  
@@ -99,12 +100,7 @@ class RequestMoneyController extends APIController
               'status' => 2,
               'updated_at' => Carbon::now()
             ));
-
-            $pushNotif = array(
-              'messenger_group_id' => $data['messenger_group_id'],
-              'account_id'         => $data['account_id']
-            );
-            Notifications::dispatch('validation', $pushNotif);
+            app($this->messengerGroupClass)->broadcastByParams($data['messenger_group_id'], $data['account_id']);
             $responseData = true;
           }else{
             $error = 'Unabled to process the payment!';

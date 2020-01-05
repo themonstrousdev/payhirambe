@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Increment\Account\Models\Account;
 use Illuminate\Support\Facades\DB;
 use App\Events\Message;
+use App\Jobs\Notifications;
 class MessengerGroupController extends APIController
 {
     public $notificationClass = 'Increment\Common\Notification\Http\NotificationController';
@@ -123,6 +124,18 @@ class MessengerGroupController extends APIController
         $this->response['data'] = null;
       }
       return $this->response();
+    }
+
+    public function broadcastByParams($id, $accountId){
+      $data = $request->all();
+      $result = MessengerGroup::where('id', '=', $id)->get();
+      $messengerGroup = null;
+      if(sizeof($result) > 0){
+        $messengerGroup = $this->manageResult($result[0], $accountId, $result[0]['title']);
+        Notifications::dispatch('validation', $messengerGroup);
+      }else{
+        $messengerGroup = null;
+      }
     } 
 
     public function manageResult($result, $accountId, $title){
