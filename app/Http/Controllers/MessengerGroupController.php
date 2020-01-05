@@ -127,7 +127,6 @@ class MessengerGroupController extends APIController
     }
 
     public function broadcastByParams($id, $accountId){
-      $data = $request->all();
       $result = MessengerGroup::where('id', '=', $id)->get();
       $messengerGroup = null;
       if(sizeof($result) > 0){
