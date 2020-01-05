@@ -131,7 +131,7 @@ class MessengerGroupController extends APIController
       $messengerGroup = null;
       if(sizeof($result) > 0){
         $messengerGroup = $this->manageResult($result[0], $accountId, $result[0]['title']);
-        Notifications::dispatch('validation', $messengerGroup);
+        Notifications::dispatch('validation', $messengerGroup->toArray());
       }else{
         $messengerGroup = null;
       }
