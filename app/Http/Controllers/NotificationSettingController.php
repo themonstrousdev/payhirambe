@@ -55,6 +55,7 @@ class NotificationSettingController extends APIController
           'code' => $code,
           'updated_at' => Carbon::now()
         ));
+        app('App\Http\Controllers\EmailController')->otpEmailFundTransfer($data['account_id'], $code);
       }else{
         // check difference in updated
         $currentDate = Carbon::now();
@@ -72,8 +73,9 @@ class NotificationSettingController extends APIController
         }
       }
     }else{
+      $code = $this->otpCodeGenerator();
       $insertData = array(
-        'code'        => $this->otpCodeGenerator(),
+        'code'        => $code,
         'account_id'  => $data['account_id'],
         'email_login' => 0,
         'email_otp'   => 0,
@@ -82,8 +84,9 @@ class NotificationSettingController extends APIController
         'created_at'  => Carbon::now()
       );
       NotificationSetting::insert($insertData);
+      app('App\Http\Controllers\EmailController')->otpEmailFundTransfer($data['account_id'], $code);
     }
-    // app('App\Http\Controllers\EmailController')->otpEmailFundTransfer($accountId, $code);
+    
     return response()->json(array(
       'error' => $error,
       'attempt' => 0,
