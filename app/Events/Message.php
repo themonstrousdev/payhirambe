@@ -19,10 +19,10 @@ class Message implements ShouldBroadcast
      *
      * @return void
      */
-    public $message;
-    public function __construct($message)
+    public $data;
+    public function __construct($data)
     {
-        $this->message = $message;
+        $this->data = $data;
     }
 
     /**
@@ -32,6 +32,6 @@ class Message implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('payhiram');
+        return new Channel(env('BROADCAST_CHANNEL'));
     }
 }

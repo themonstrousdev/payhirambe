@@ -19,11 +19,10 @@ class Call implements ShouldBroadcast
      *
      * @return void
      */
-    public $user;
-    public function __construct($user)
+    public $data;
+    public function __construct($data)
     {
-        $this->user = $user;
-        echo 'hello';
+        $this->data = $data;
     }
 
     /**
@@ -33,6 +32,6 @@ class Call implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('paprint-call');
+        return new Channel(env('BROADCAST_CHANNEL'));
     }
 }
