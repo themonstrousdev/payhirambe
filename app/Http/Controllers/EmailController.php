@@ -145,4 +145,42 @@ class EmailController extends APIController
         }
         return false;
     }
+
+    public function testSMS(Request $request){
+        $this->sendSMS();
+        return $this->response();
+    }
+
+    public function sendSMS(){
+        $shortcode = env('SMS_SHORT_CODE');
+        $passphrase = "143143@kennCK1994";
+        $app_id = env('SMS_APP_ID');
+        $app_secret = env('SMS_APP_SECRET');
+        $address = "9171837855";
+        $clientCorrelator = "264801";
+        $message = "PHP SMS Test";
+        echo $app_id;
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => "https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/".$shortcode."/requests?app_id=".$app_id."&app_secret=".$app_secret."&passphrase=".$passphrase ,
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => "",
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 30,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "POST",
+          CURLOPT_POSTFIELDS => "{\"outboundSMSMessageRequest\": { \"clientCorrelator\": \"".$clientCorrelator."\", \"senderAddress\": \"".$shortcode."\", \"outboundSMSTextMessage\": {\"message\": \"".$message."\"}, \"address\": \"".$address."\" } }",
+          CURLOPT_HTTPHEADER => array(
+            "Content-Type: application/json"
+          ),
+        ));
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+          echo "cURL Error #:" . $err;
+        } else {
+          echo $response;
+        }
+    }
 }
