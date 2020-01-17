@@ -76,6 +76,9 @@ Route::post($route, 'AuthenticateController@authenticate');
 Route::post($route.'/user', 'AuthenticateController@getAuthenticatedUser');
 Route::post($route.'/refresh', 'AuthenticateController@refreshToken');
 Route::post($route.'/invalidate', 'AuthenticateController@deauthenticate');
+Route::post($route.'/auth', function () {
+    return true;
+});
 
 //Emails Controller
 $route = env('PACKAGE_ROUTE', '').'/emails';
