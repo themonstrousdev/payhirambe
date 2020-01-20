@@ -34,6 +34,7 @@ class RequestValidationController extends APIController
     $flag = true;
     $transferStatus = 'approved';
     $initialFlag = false;
+    $validationStatus = 0;
     foreach ($requirements as $key) {
       $validations = RequestValidation::where($column, '=', $value)->where('payload', '=', $key['payload'])->get();
       $requirements[$i]['validations'] = sizeof($validations) > 0 ? $validations[0] : null;
@@ -45,6 +46,9 @@ class RequestValidationController extends APIController
       if($flag == true && $requirements[$i]['validations'] == null){
         $flag = false;
       }
+      if(sizeof($validations) > 0){
+        $validationStatus++;
+      }
       if($transferStatus == 'approved' && sizeof($validations) > 0 && $validations[0]['status'] != 'approved'){
         $transferStatus = $validations[0]['status'];
       }
@@ -54,6 +58,7 @@ class RequestValidationController extends APIController
     return array(
       'complete_status' => $flag,
       'requirements' => $requirements,
+      'validation_status' => $validationStatus,
       'transfer_status' => ($initialFlag == true) ? $transferStatus : 'initial'
     );
   }
@@ -72,7 +77,7 @@ class RequestValidationController extends APIController
       'status'      => $data['status']
     );
     $this->insertDB($insertData);
-    app($this->messengerGroupClass)->broadcastByParams($data['messages']['messenger_group_id'], $data['messages']['account_id']);
+    app($this->messengerGroupClass)->broadcastByParams($data['messages']['messenger_group_id'], $data['messages']['account_id'], false);
     return $this->response();
   }
 
@@ -83,7 +88,7 @@ class RequestValidationController extends APIController
       'status'  => $data['status']
     );
     $this->updateDB($updateData);
-    app($this->messengerGroupClass)->broadcastByParams($data['messages']['messenger_group_id'], $data['messages']['account_id']);
+    app($this->messengerGroupClass)->broadcastByParams($data['messages']['messenger_group_id'], $data['messages']['account_id'], true);
     return $this->response();
   }
 }

@@ -9,7 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Events\Notifications as EventNotifications;
 use App\Events\Message;
-use App\Events\Validation;
+use App\Events\MessageGroup;
 use Pusher\Pusher;
 class Notifications implements ShouldQueue
 {
@@ -27,18 +27,18 @@ class Notifications implements ShouldQueue
     {
         $this->type = $type;
         $this->data = $data;
-        if(env('PUSHER_TYPE') != 'self'){
-            $options = array(
-                'cluster' => env('OTHER_PUSHER_CLUSTER'),
-                'useTLS' => true
-            );
-            $this->pusher = new Pusher(
-                env('OTHER_PUSHER_APP_KEY'),
-                env('OTHER_PUSHER_APP_SECRET'),
-                env('OTHER_PUSHER_APP_ID'),
-                $options
-            );
-        }
+        // if(env('PUSHER_TYPE') != 'self'){
+        //     $options = array(
+        //         'cluster' => env('OTHER_PUSHER_CLUSTER'),
+        //         'useTLS' => true
+        //     );
+        //     $this->pusher = new Pusher(
+        //         env('OTHER_PUSHER_APP_KEY'),
+        //         env('OTHER_PUSHER_APP_SECRET'),
+        //         env('OTHER_PUSHER_APP_ID'),
+        //         $options
+        //     );
+        // }
     }
 
     /**
@@ -49,26 +49,14 @@ class Notifications implements ShouldQueue
     public function handle()
     {
         switch ($this->type) {
+            case 'message_group':
+                broadcast(new MessageGroup($this->data));
+                break;
             case 'notifications':
-                if(env('PUSHER_TYPE') == 'self'){
-                    broadcast(new EventNotifications($this->data));
-                }else{
-                    $this->pusher->trigger('payhiram', 'Notifications', $this->data);
-                }
+                broadcast(new EventNotifications($this->data));
                 break;
             case 'message':
-                if(env('PUSHER_TYPE') == 'self'){
-                    broadcast(new Message($this->data));
-                }else{
-                    $this->pusher->trigger('payhiram', 'Message', $this->data);
-                }
-                break;
-            case 'validation':
-                if(env('PUSHER_TYPE') == 'self'){
-                    broadcast(new Validation($this->data));
-                }else{
-                    $this->pusher->trigger('payhiram', 'Validation', $this->data);
-                }
+                broadcast(new Message($this->data));
                 break;
             default:
                 # code...

@@ -127,13 +127,17 @@ class MessengerGroupController extends APIController
       return $this->response();
     }
 
-    public function broadcastByParams($id, $accountId){
+    public function broadcastByParams($id, $accountId, $update = null){
       $result = MessengerGroup::where('id', '=', $id)->get();
       $messengerGroup = null;
       if(sizeof($result) > 0){
-        $messengerGroup = $this->manageResult($result[0], $accountId, $result[0]['title']);
-        $messengerGroup['messages'] = app($this->messengerMessagesClass)->getByParams('messenger_group_id', $id);
-        Notifications::dispatch('validation', $messengerGroup->toArray());
+        $result = $result[0];
+        $messengerGroup = $result;
+        $messengerGroup['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result['updated_at'] != null ?  $result['updated_at'] : $result['created_at'])->copy()->tz('Asia/Manila')->format('F j, Y h:i A');
+        $messengerGroup['validations'] = app($this->requestValidationClass)->getByParams('request_id', $result['payload']);
+        $messengerGroup['rating'] = app($this->ratingClass)->getByParams($accountId, 'request', $result['payload']);
+        $messengerGroup['message_update'] = $update;
+        Notifications::dispatch('message_group', $messengerGroup->toArray());
       }else{
         $messengerGroup = null;
       }
