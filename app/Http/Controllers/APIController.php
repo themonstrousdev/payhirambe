@@ -29,7 +29,8 @@ class APIController extends Controller
       "data" => null,
       "error" => array(),// {status, message}
       "debug" => null,
-      "request_timestamp" => 0
+      "request_timestamp" => 0,
+      "timezone" => 'Asia/Manila'
   );
 
   protected $notRequired = array();
@@ -226,8 +227,23 @@ class APIController extends Controller
     }
   }
 
+  public function localization(){
+      $ip = null;
+      if(isset($_SERVER['HTTP_CLIENT_IP'])){
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
+      }else if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])){
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+      }else{
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+      }
+      $result = @unserialize(file_get_contents('http://ip-api.com/php/'.$ip));
+      if($result && $result['status'] == 'success') {
+        $this->response['timezone'] = $result['timezone'];
+      }
+  }
   public function retrieveDB($request)
   {
+      $this->localization();
       $tableName = $this->model->getTable();
       $singularTableName = str_singular($tableName);
       $tableColumns = $this->model->getTableColumns();

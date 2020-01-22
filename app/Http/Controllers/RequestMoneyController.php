@@ -27,7 +27,8 @@ class RequestMoneyController extends APIController
     public $messengerGroupClass = 'App\Http\Controllers\MessengerGroupController';
     public $requestData = null;
     public $chargeData = null;
-    function __construct(){  
+    function __construct(){
+      $this->localization();
     	$this->model = new RequestMoney();
       $this->notRequired = array(
         'approved_date', 'months_payable', 'interest', 'reason', 'billing_per_month'
@@ -310,8 +311,8 @@ class RequestMoneyController extends APIController
             $result[$i]['guarantors'] = app($this->guarantorClass)->getByParams('sender', $result[$i]['account_id']);
             $result[$i]['educations'] = app($this->educationClass)->getByParams('account_id', $result[$i]['account_id']);
             $result[$i]['comakers'] = app($this->comakerClass)->getByParams($result[$i]['account_id'], $result[$i]['id']);
-            $result[$i]['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result[$i]['created_at'])->copy()->tz('Asia/Manila')->format('F j, Y h:i A');
-            $result[$i]['needed_on_human'] = Carbon::createFromFormat('Y-m-d', $result[$i]['needed_on'])->copy()->tz('Asia/Manila')->format('F j, Y h:i A');
+            $result[$i]['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result[$i]['created_at'])->copy()->tz($this->response['timezone'])->format('F j, Y h:i A');
+            $result[$i]['needed_on_human'] = Carbon::createFromFormat('Y-m-d', $result[$i]['needed_on'])->copy()->tz($this->response['timezone'])->format('F j, Y h:i A');
             $result[$i]['total'] = $this->getTotalBorrowed($result[$i]['account_id']);
             $result[$i]['initial_amount'] = $result[$i]['amount'];
             $result[$i]['amount'] = $amount - $invested['total'];
@@ -343,6 +344,7 @@ class RequestMoneyController extends APIController
     }
 
     public function getAttributes($result, $type = null){
+      $this->localization();
       if(sizeof($result) > 0){
         $i = 0;
         foreach ($result as $key) {
@@ -356,8 +358,8 @@ class RequestMoneyController extends APIController
           $result[$i]['guarantors'] = app($this->guarantorClass)->getByParams('sender', $result[$i]['account_id']);
           $result[$i]['educations'] = app($this->educationClass)->getByParams('account_id', $result[$i]['account_id']);
           $result[$i]['comakers'] = app($this->comakerClass)->getByParams($result[$i]['account_id'], $result[$i]['id']);
-          $result[$i]['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result[$i]['created_at'])->copy()->tz('Asia/Manila')->format('F j, Y h:i A');
-          $result[$i]['needed_on_human'] = Carbon::createFromFormat('Y-m-d', $result[$i]['needed_on'])->copy()->tz('Asia/Manila')->format('F j, Y h:i A');
+          $result[$i]['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result[$i]['created_at'])->copy()->tz($this->response['timezone'])->format('F j, Y h:i A');
+          $result[$i]['needed_on_human'] = Carbon::createFromFormat('Y-m-d', $result[$i]['needed_on'])->copy()->tz($this->response['timezone'])->format('F j, Y h:i A');
           $result[$i]['total'] = $this->getTotalBorrowed($result[$i]['account_id']);
           $result[$i]['invested'] = $invested['size'];
           $result[$i]['billing_per_month_human'] = $this->billingPerMonth($result[$i]['billing_per_month']);
@@ -414,7 +416,6 @@ class RequestMoneyController extends APIController
     }
 
     public function payments($data){
-
       $result = RequestMoney::where('account_id', '=', $data['account_id'])->where('status', '=', 1)->where('approved_date', '!=', null)->get();
       $result = $this->getAttributes($result);
 
@@ -422,8 +423,8 @@ class RequestMoneyController extends APIController
         $i = 0;
         foreach ($result as $key) {
           $billingDate = $this->manageNextBilling($result[$i]['approved_date'], $result[$i]['billing_per_month']);
-          $result[$i]['next_billing_date_human'] = $billingDate->copy()->tz('Asia/Manila')->format('F j, Y h:i A');
-          $result[$i]['next_billing_date'] = $billingDate->copy()->tz('Asia/Manila')->format('Y-m-d');
+          $result[$i]['next_billing_date_human'] = $billingDate->copy()->tz($this->response['timezone'])->format('F j, Y h:i A');
+          $result[$i]['next_billing_date'] = $billingDate->copy()->tz($this->response['timezone'])->format('Y-m-d');
           $result[$i]['penalty'] = app($this->penaltyClass)->getTotalPenalty($result[$i]['request_id'], $data['account_id']); 
           $i++;
         }

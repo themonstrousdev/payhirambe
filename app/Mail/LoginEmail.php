@@ -18,10 +18,10 @@ class LoginEmail extends Mailable
      *
      * @return void
      */
-    public function __construct($user)
+    public function __construct($user, $timezone)
     {
         $this->user = $user;
-        $this->date = Carbon::now()->copy()->tz('Asia/Manila')->format('F j, Y');
+        $this->date = Carbon::now()->copy()->tz($timezone)->format('F j, Y h:i A');
     }
 
     /**

@@ -17,13 +17,13 @@ class PaymentController extends APIController
   public function retrieve(Request $request){
     $data = $request->all();
     $result = Payment::where('account_id', '=', $data['account_id'])->where($data['column'], 'like', $data['value'])->limit(intval($data['limit']))->offset(intval($data['offset']))->orderBy($data['sort']['column'], $data['sort']['value'])->get();
-
+    $this->localization();
     if(sizeof($result) > 0){
       $i = 0;
       foreach ($result as $key) {
         $result[$i]['request'] = app($this->requestClass)->retrieveById($result[$i]['request_id']);
-        $result[$i]['date_human'] = Carbon::createFromFormat('Y-m-d', $result[$i]['date'])->copy()->tz('Asia/Manila')->format('F j, Y h:i A');
-        $result[$i]['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result[$i]['created_at'])->copy()->tz('Asia/Manila')->format('F j, Y h:i A');
+        $result[$i]['date_human'] = Carbon::createFromFormat('Y-m-d', $result[$i]['date'])->copy()->tz($this->response['timezone'])->format('F j, Y h:i A');
+        $result[$i]['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result[$i]['created_at'])->copy()->tz($this->response['timezone'])->format('F j, Y h:i A');
         $i++;
       }
     }

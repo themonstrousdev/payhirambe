@@ -17,13 +17,18 @@ use Illuminate\Http\Request;
 
 class EmailController extends APIController
 {
-    function __construct(){  
+
+    public $timezone = 'Asia/Manila';
+
+    function __construct(){
+        $this->localization();
+        $this->timezone = $this->response['timezone'];
     }
 
     public function resetPassword($id){
     	$user = $this->retrieveAccountDetails($id);
     	if($user != null){
-    		Mail::to($user['email'])->send(new ResetPassword($user));
+    		Mail::to($user['email'])->send(new ResetPassword($user, $this->timezone));
     		return true;
     	}
     	return false;
@@ -32,7 +37,7 @@ class EmailController extends APIController
     public function verification($id){
         $user = $this->retrieveAccountDetails($id);
         if($user != null){
-            Mail::to($user['email'])->send(new Verification($user));
+            Mail::to($user['email'])->send(new Verification($user, $this->timezone));
             return true;
         }
         return false;
@@ -44,7 +49,7 @@ class EmailController extends APIController
     public function changedPassword($id){
         $user = $this->retrieveAccountDetails($id);
         if($user != null){
-            Mail::to($user['email'])->send(new ChangedPassword($user));
+            Mail::to($user['email'])->send(new ChangedPassword($user, $this->timezone));
             return true;
         }
         return false;
@@ -53,7 +58,7 @@ class EmailController extends APIController
     public function loginEmail($id){
         $user = $this->retrieveAccountDetails($id);
         if($user != null){
-            Mail::to($user['email'])->send(new LoginEmail($user));
+            Mail::to($user['email'])->send(new LoginEmail($user, $this->timezone));
             return true;
         }
         return false;
@@ -62,7 +67,7 @@ class EmailController extends APIController
     public function notifyReferrer($id){
         $user = $this->retrieveAccountDetails($id);
         if($user != null){
-            Mail::to($user['email'])->send(new NotifyReferrer($user));
+            Mail::to($user['email'])->send(new NotifyReferrer($user, $this->timezone));
             return true;
         }
         return false;
@@ -70,9 +75,9 @@ class EmailController extends APIController
 
     public function otpEmail($id, $otpCode){
         $user = $this->retrieveAccountDetails($id);
-        $text = "to continue login to ".env('APP_NAME').". Enjoy!";
+        $text = "to continue your activity to ".env('APP_NAME').". Enjoy!";
         if($user != null){
-            Mail::to($user['email'])->send(new OtpEmail($user, $otpCode, $text));
+            Mail::to($user['email'])->send(new OtpEmail($user, $otpCode, $text, $this->timezone));
             return true;
         }
         return false;
@@ -82,7 +87,7 @@ class EmailController extends APIController
         $user = $this->retrieveAccountDetails($id);
         $text = "to continue for money transfer from your account.";
         if($user != null){
-            Mail::to($user['email'])->send(new OtpEmail($user, $otpCode, $text));
+            Mail::to($user['email'])->send(new OtpEmail($user, $otpCode, $text, $this->timezone));
             return true;
         }
         return false;
@@ -92,7 +97,7 @@ class EmailController extends APIController
         $data = $request->all();
         $user = $this->retrieveAccountDetails($data['account_id']);
         if($user != null){
-            Mail::to($data['to_email'])->send(new Referral($user, $data['content'], $data['to_email']));
+            Mail::to($data['to_email'])->send(new Referral($user, $data['content'], $data['to_email'], $this->timezone));
             $this->response['data'] = true;
         }
         return $this->response();
@@ -101,7 +106,7 @@ class EmailController extends APIController
     public function receipt($accountId, $data){
         $user = $this->retrieveAccountDetails($accountId);
         if($user != null && sizeof($data) > 0){
-            Mail::to($user['email'])->send(new Receipt($user, $data[0]));
+            Mail::to($user['email'])->send(new Receipt($user, $data[0], $this->timezone));
             return true;
         }
         return false;
@@ -110,7 +115,7 @@ class EmailController extends APIController
     public function ledger($accountId, $details, $subject){
         $user = $this->retrieveAccountDetails($accountId);
         if($user != null){
-            Mail::to($user['email'])->send(new Ledger($user, $details, $subject));
+            Mail::to($user['email'])->send(new Ledger($user, $details, $subject, $this->timezone));
             return true;
         }
         return false;
@@ -120,7 +125,7 @@ class EmailController extends APIController
         $online = app('Increment\Account\Http\AccountOnlineController')->getStatus($accountId);
         $user = $this->retrieveAccountDetails($accountId);
         if($user != null && $online == false){
-            Mail::to($user['email'])->send(new NewMessage($user));
+            Mail::to($user['email'])->send(new NewMessage($user, $this->timezone));
             return true;
         }
         return false;
@@ -130,7 +135,7 @@ class EmailController extends APIController
         $data = $request->all();
         $user = $this->retrieveAccountDetails($data['account_id']);
         if($user != null){
-            Mail::to($user['email'])->send(new LoginEmail($user));
+            Mail::to($user['email'])->send(new LoginEmail($user, $this->timezone));
             $this->response['data'] = true;
         }
         return $this->response();
@@ -140,7 +145,7 @@ class EmailController extends APIController
     public function investment($accountId, $details, $subject){
         $user = $this->retrieveAccountDetails($accountId);
         if($user != null){
-            Mail::to($user['email'])->send(new Ledger($user, $details, $subject));
+            Mail::to($user['email'])->send(new Ledger($user, $details, $subject, $timezone));
             return true;
         }
         return false;

@@ -21,6 +21,7 @@ class MessengerGroupController extends APIController
     public $messengerMessagesClass = 'Increment\Messenger\Http\MessengerMessageController';
     function __construct(){
       $this->model = new MessengerGroup();
+      $this->localization();
     }
 
     public function create(Request $request){
@@ -133,7 +134,7 @@ class MessengerGroupController extends APIController
       if(sizeof($result) > 0){
         $result = $result[0];
         $messengerGroup = $result;
-        $messengerGroup['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result['updated_at'] != null ?  $result['updated_at'] : $result['created_at'])->copy()->tz('Asia/Manila')->format('F j, Y h:i A');
+        $messengerGroup['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result['updated_at'] != null ?  $result['updated_at'] : $result['created_at'])->copy()->tz($this->response['timezone'])->format('F j, Y h:i A');
         $messengerGroup['validations'] = app($this->requestValidationClass)->getByParams('request_id', $result['payload']);
         $messengerGroup['rating'] = app($this->ratingClass)->getByParams($accountId, 'request', $result['payload']);
         $messengerGroup['message_update'] = $update;
@@ -147,7 +148,7 @@ class MessengerGroupController extends APIController
       $result['id'] = intval($result['id']);
       $result['account_id'] = intval($result['account_id']);
       $result['account_details'] = $this->retrieveAccountDetails($result['account_id']);
-      $result['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result['updated_at'] != null ?  $result['updated_at'] : $result['created_at'])->copy()->tz('Asia/Manila')->format('F j, Y h:i A');
+      $result['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result['updated_at'] != null ?  $result['updated_at'] : $result['created_at'])->copy()->tz($this->response['timezone'])->format('F j, Y h:i A');
       $result['members'] = $this->getMembers($result['id'], null);
       $members = $result['members']['result'];
       if(sizeof($members) > 0){

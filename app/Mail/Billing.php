@@ -19,10 +19,10 @@ class Billing extends Mailable
      *
      * @return void
      */
-    public function __construct($data)
+    public function __construct($data, $timezone)
     {
         $this->data = $data;
-        $this->date = Carbon::now()->copy()->tz('Asia/Manila')->format('F j, Y');
+        $this->date = Carbon::now()->copy()->tz($timezone)->format('F j, Y h:i A');
     }
 
 

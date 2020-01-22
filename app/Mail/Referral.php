@@ -22,13 +22,13 @@ class Referral extends Mailable
      *
      * @return void
      */
-    public function __construct($user, $content, $toEmail, $details)
+    public function __construct($user, $content, $toEmail, $details, $timezone)
     {
         $this->user = $user;
         $this->content = $content;
         $this->toEmail = $toEmail;
         $this->details = $details;
-        $this->date = Carbon::now()->copy()->tz('Asia/Manila')->format('F j, Y');
+        $this->date = Carbon::now()->copy()->tz($timezone)->format('F j, Y h:i A');
     }
 
     /**

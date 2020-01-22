@@ -19,12 +19,12 @@ class Guarantor extends Mailable
      *
      * @return void
      */
-    public function __construct($user, $email, $code)
+    public function __construct($user, $email, $code, $timezone)
     {
         $this->user = $user;
         $this->email = $email;
         $this->details = $code;
-        $this->date = Carbon::now()->copy()->tz('Asia/Manila')->format('F j, Y');
+        $this->date = Carbon::now()->copy()->tz($timezone)->format('F j, Y h:i A');
     }
 
     /**

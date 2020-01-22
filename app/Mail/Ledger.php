@@ -21,13 +21,13 @@ class Ledger extends Mailable
      *
      * @return void
      */
-    public function __construct($user, $details, $subject)
+    public function __construct($user, $details, $subject, $timezone)
     {
         $this->user = $user;
         $this->title = $details['title'];
         $this->transactionId = $details['transaction_id'];
         $this->emailSubject = $subject;
-        $this->date = Carbon::now()->copy()->tz('Asia/Manila')->format('F j, Y');
+        $this->date = Carbon::now()->copy()->tz($timezone)->format('F j, Y h:i A');
     }
 
     /**
