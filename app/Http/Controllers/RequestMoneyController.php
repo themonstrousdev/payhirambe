@@ -286,19 +286,13 @@ class RequestMoneyController extends APIController
     	$data = $request->all();
       $result = array();
       $response = array();
-      // if($data['value'] != null){
-      //   $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->skip($data['offset'])->take($data['limit'])->orderBy($data['sort']['column'], $data['sort']['value'])->get();
-      // }else{
-      //   $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->orWhere('type', '<=', 100)->skip($data['offset'])->take($data['limit'])->orderBy($data['sort']['column'], $data['sort']['value'])->get();
-      // }
-
       if($data['value'] != null){
-        $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->orderBy($data['sort']['column'], $data['sort']['value'])->get();
+        $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->skip($data['offset'])->take($data['limit'])->orderBy($data['sort']['column'], $data['sort']['value'])->get();
       }else{
-        $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->orWhere('type', '<=', 100)->orderBy($data['sort']['column'], $data['sort']['value'])->get();
+        $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->orWhere('type', '<=', 100)->skip($data['offset'])->take($data['limit'])->orderBy($data['sort']['column'], $data['sort']['value'])->get();
       }
       
-      $size =  RequestMoney::where('status', '=', 0)->get();
+      $size =  0;
       if(sizeof($result) > 0){
         $i = 0;
         foreach ($result as $key) {
@@ -327,6 +321,7 @@ class RequestMoneyController extends APIController
             $result[$i]['billing_per_month_human'] = $this->billingPerMonth($result[$i]['billing_per_month']);
             $result[$i]['bookmark'] = (app($this->bookmarkClass)->checkIfExist($data['account_id'], $result[$i]['id']) == null) ? false : true;
             $response[] = $result[$i];
+            $size++;
           }  
           $i++;
         }
