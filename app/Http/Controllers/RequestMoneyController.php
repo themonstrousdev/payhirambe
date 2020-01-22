@@ -292,7 +292,7 @@ class RequestMoneyController extends APIController
         $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->orWhere('type', '<=', 100)->offset($data['offset'])->limit($data['limit'])->orderBy($data['sort']['column'], $data['sort']['value'])->get();
       }
       
-      $size =  0;
+      $size = sizeof($result);
       if(sizeof($result) > 0){
         $i = 0;
         foreach ($result as $key) {
@@ -321,7 +321,6 @@ class RequestMoneyController extends APIController
             $result[$i]['billing_per_month_human'] = $this->billingPerMonth($result[$i]['billing_per_month']);
             $result[$i]['bookmark'] = (app($this->bookmarkClass)->checkIfExist($data['account_id'], $result[$i]['id']) == null) ? false : true;
             $response[] = $result[$i];
-            $size++;
           }  
           $i++;
         }
