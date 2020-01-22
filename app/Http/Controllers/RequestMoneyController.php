@@ -285,14 +285,16 @@ class RequestMoneyController extends APIController
     public function retrieve(Request $request){
     	$data = $request->all();
       $result = array();
+      $size = array();
       $response = array();
       if($data['value'] != null){
         $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->offset($data['offset'])->limit($data['limit'])->orderBy($data['sort']['column'], $data['sort']['value'])->get();
+        $size = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->orderBy($data['sort']['column'], $data['sort']['value'])->get();
       }else{
         $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->orWhere('type', '<=', 100)->offset($data['offset'])->limit($data['limit'])->orderBy($data['sort']['column'], $data['sort']['value'])->get();
+        $size = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->orWhere('type', '<=', 100)->orderBy($data['sort']['column'], $data['sort']['value'])->get();
       }
       
-      $size = sizeof($result);
       if(sizeof($result) > 0){
         $i = 0;
         foreach ($result as $key) {
