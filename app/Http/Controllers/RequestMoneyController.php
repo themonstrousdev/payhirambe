@@ -287,9 +287,9 @@ class RequestMoneyController extends APIController
       $result = array();
       $response = array();
       if($data['value'] != null){
-        $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value']->offset(intval($data['offset'])))->limit($data['limit'])->orderBy($data['sort']['column'], $data['sort']['value'])->get();
+        $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->offset($data['offset'])->limit($data['limit'])->orderBy($data['sort']['column'], $data['sort']['value'])->get();
       }else{
-        $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->orWhere('type', '<=', 100)->offset($data['offset'))->limit(intval($data['limit']))->orderBy($data['sort']['column'], $data['sort']['value'])->get();
+        $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->orWhere('type', '<=', 100)->offset($data['offset'])->limit($data['limit'])->orderBy($data['sort']['column'], $data['sort']['value'])->get();
       }
       
       $size =  RequestMoney::where('status', '=', 0)->get();
