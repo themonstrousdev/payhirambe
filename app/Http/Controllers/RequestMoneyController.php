@@ -385,9 +385,9 @@ class RequestMoneyController extends APIController
       }
     }
     
-    public function updateStatus($id){
+    public function updateStatus($id, $status = 1){
       RequestMoney::where('id', '=', $id)->update(array(
-        'status' => 1,
+        'status' => $status,
         'updated_at' => Carbon::now()
       ));
     }
