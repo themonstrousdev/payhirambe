@@ -5,6 +5,7 @@ use Increment\Account\Models\Account;
 use Illuminate\Http\Request;
 use App\RequestMoney;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use App\Jobs\Notifications;
 class RequestMoneyController extends APIController
 {
@@ -286,13 +287,28 @@ class RequestMoneyController extends APIController
     	$data = $request->all();
       $result = array();
       $size = array();
+
+      $accountLocation = app('App\Http\Controllers\InvestorLocationController')->getByParams('account_id', $data['account_id']);
       $response = array();
-      if($data['value'] != null){
+
+      if($accountLocation == null){
         $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->offset($data['offset'])->limit($data['limit'])->orderBy($data['sort']['column'], $data['sort']['value'])->get();
         $size = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->orderBy($data['sort']['column'], $data['sort']['value'])->get();
       }else{
-        $result = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->orWhere('type', '<=', 100)->offset($data['offset'])->limit($data['limit'])->orderBy($data['sort']['column'], $data['sort']['value'])->get();
-        $size = RequestMoney::where('status', '=', 0)->where($data['column'], 'like', $data['value'])->orWhere('type', '<=', 100)->orderBy($data['sort']['column'], $data['sort']['value'])->get();
+        $result = DB::table('request_locations as T1')
+          ->join('requests as T2', 'T2.id', '=', 'T1.request_id')
+          ->where('T2.status', '=', 0)
+          ->where('T1.country', '=', $accountLocation['country'])
+          ->where('T1.region', '=', $accountLocation['region'])
+          ->whereIn('T1.locality', $accountLocation['locality'])
+          ->where('T2.'.$data['column'], 'like', $data['value'])
+          ->orderBy('T2.'.$data['sort']['column'], $data['sort']['value'])
+          ->offset($data['offset'])
+          ->limit($data['limit'])
+          ->select('T2.*')
+          ->get();
+
+          $result = json_decode($result, true);
       }
       
       if(sizeof($result) > 0){

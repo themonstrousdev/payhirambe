@@ -104,7 +104,6 @@ Route::post($route.'update', $controller."update");
 Route::post($route.'delete', $controller."delete");
 Route::get($route.'test', $controller.'test');
 
-
 // Messenger Groups Custom
 $route = env('PACKAGE_ROUTE', '').'/custom_messenger_groups/';
 $controller = 'MessengerGroupController@';
@@ -155,7 +154,6 @@ Route::post($route.'create', $controller."create");
 Route::post($route.'retrieve', $controller."retrieve");
 Route::post($route.'delete', $controller."delete");
 Route::post($route.'update', $controller."update");
-
 
 // Payments
 $route = env('PACKAGE_ROUTE', '').'/payments/';
@@ -247,7 +245,6 @@ Route::post($route.'retrieve', $controller."retrieve");
 Route::post($route.'delete', $controller."delete");
 Route::post($route.'update', $controller."update");
 
-
 // Educations Controller
 $route = env('PACKAGE_ROUTE', '').'/educations/';  
 $controller = 'EducationController@';
@@ -280,11 +277,17 @@ Route::post($route.'retrieve', $controller."retrieve");
 Route::post($route.'update', $controller."update");
 Route::post($route.'delete', $controller."delete");
 
-
-
 //Request Validations Controller
 $route = env('PACKAGE_ROUTE', '').'/request_validations/';  
 $controller = 'RequestValidationController@';
+Route::post($route.'create', $controller."create");
+Route::post($route.'retrieve', $controller."retrieve");
+Route::post($route.'update', $controller."update");
+Route::post($route.'delete', $controller."delete");
+
+//Investor Location Controller
+$route = env('PACKAGE_ROUTE', '').'/investor_locations/';  
+$controller = 'InvestorLocationController@';
 Route::post($route.'create', $controller."create");
 Route::post($route.'retrieve', $controller."retrieve");
 Route::post($route.'update', $controller."update");
