@@ -299,7 +299,7 @@ class RequestMoneyController extends APIController
           ->join('requests as T2', 'T2.id', '=', 'T1.request_id')
           ->where('T2.status', '=', 0)
           ->where('T1.country', '=', $accountLocation['country'])
-          ->where('T1.region', '=', $accountLocation['region'])
+          // ->where('T1.region', '=', $accountLocation['region'])
           ->whereIn('T1.locality', $accountLocation['locality'])
           ->where('T2.'.$data['column'], 'like', $data['value'])
           ->orderBy('T2.'.$data['sort']['column'], $data['sort']['value'])
