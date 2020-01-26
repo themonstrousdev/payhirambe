@@ -307,8 +307,8 @@ class RequestMoneyController extends APIController
           ->limit($data['limit'])
           ->select('T2.*')
           ->get();
-
-          $result = json_decode($result, true);
+        $result = json_decode($result, true);
+        $size = $result;
       }
       
       if(sizeof($result) > 0){
