@@ -21,10 +21,11 @@ class DepositController extends APIController
       if(sizeof($result) > 0){
         $i = 0;
         foreach ($result as $key) {
-            $attachments = DepositAttachment::where('deposit_id','=',$result[$i]['id'])->get();
-            $this->response["data"][$i]['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result[$i]['created_at'])->copy()->tz($this->response['timezone'])->format('F j, Y H:i A');
-            $this->response["data"][$i]['attachments'] = $attachments;
-            $i++;
+          $attachments = DepositAttachment::where('deposit_id','=',$result[$i]['id'])->get();
+          $this->response["data"][$i]['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result[$i]['created_at'])->copy()->tz($this->response['timezone'])->format('F j, Y H:i A');
+          $this->response["data"][$i]['attachments'] = $attachments;
+          $this->response['data'][$i]['account'] = $this->retrieveAccountDetails($result[$i]['account_id']);
+          $i++;
         }
       }
 
