@@ -12,5 +12,9 @@ class Deposit extends APIModel
     public function getAccountIdAttribute($value){
       return intval($value);
     }
+
+    public function getAmountAttribute($value){
+      return doubleval($value);
+    }
 }
 
