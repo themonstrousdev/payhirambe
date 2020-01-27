@@ -18,7 +18,9 @@ class CreateDepositsTable extends Migration
             $table->string('code');
             $table->bigInteger('account_id');
             $table->double('amount',8,2);
-            $table->longText('description');
+            $table->longText('description')->nullable();
+            $table->string('bank');
+            $table->string('deposit_number')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
