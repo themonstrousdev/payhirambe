@@ -167,6 +167,7 @@ class MessengerGroupController extends APIController
       $result['peer'] = app($this->requestPeerClass)->getApprovedByParams('request_id', $result['payload']);
       $result['thread'] = $title;
       $result['rating'] = app($this->ratingClass)->getByParams($accountId, 'request', $result['payload']);
+      $result['total_unread_message'] = app($messengerMessagesClass)->getTotalUnreadMessages($result['id'], $accountId);
       $result['new'] = false;
       return $result;
     }
