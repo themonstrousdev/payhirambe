@@ -14,7 +14,7 @@ class UpdateDepositsTableAddCurrency extends Migration
     public function up()
     {
         Schema::table('deposits', function (Blueprint $table) {
-            $table->string('currency')->default('PH')->after('amount');
+            $table->string('currency')->default('PHP')->after('amount');
         });
     }
 
