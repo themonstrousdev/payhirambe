@@ -12,7 +12,7 @@ class LedgerController extends APIController
       $this->model = new Ledger();
     }
     public $notificationClass = 'Increment\Common\Notification\Http\NotificationController';
-    public $depositClass = ' App\Http\Controllers\DepositController';
+    public $depositClass = 'App\Http\Controllers\DepositController';
     public function dashboard($accountId){
       return array(
         'ledger' => $this->retrievePersonal($accountId),
