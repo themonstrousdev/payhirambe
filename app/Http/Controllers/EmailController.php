@@ -29,7 +29,7 @@ class EmailController extends APIController
     public function resetPassword($id){
     	$user = $this->retrieveAccountDetails($id);
     	if($user != null){
-    		Mail::to($user['email'])->send(new ResetPassword($user, $this->timezone));
+    		Mail::to($user['email'])->send(new ResetPassword($user, $this->response['timezone']));
     		return true;
     	}
     	return false;
@@ -38,7 +38,7 @@ class EmailController extends APIController
     public function verification($id){
         $user = $this->retrieveAccountDetails($id);
         if($user != null){
-            Mail::to($user['email'])->send(new Verification($user, $this->timezone));
+            Mail::to($user['email'])->send(new Verification($user, $this->response['timezone']));
             return true;
         }
         return false;
@@ -50,7 +50,7 @@ class EmailController extends APIController
     public function changedPassword($id){
         $user = $this->retrieveAccountDetails($id);
         if($user != null){
-            Mail::to($user['email'])->send(new ChangedPassword($user, $this->timezone));
+            Mail::to($user['email'])->send(new ChangedPassword($user, $this->response['timezone']));
             return true;
         }
         return false;
@@ -59,7 +59,7 @@ class EmailController extends APIController
     public function loginEmail($id){
         $user = $this->retrieveAccountDetails($id);
         if($user != null){
-            Mail::to($user['email'])->send(new LoginEmail($user, $this->timezone));
+            Mail::to($user['email'])->send(new LoginEmail($user, $this->response['timezone']));
             return true;
         }
         return false;
@@ -68,7 +68,7 @@ class EmailController extends APIController
     public function notifyReferrer($id){
         $user = $this->retrieveAccountDetails($id);
         if($user != null){
-            Mail::to($user['email'])->send(new NotifyReferrer($user, $this->timezone));
+            Mail::to($user['email'])->send(new NotifyReferrer($user, $this->response['timezone']));
             return true;
         }
         return false;
@@ -78,7 +78,7 @@ class EmailController extends APIController
         $user = $this->retrieveAccountDetails($id);
         $text = "to continue your activity to ".env('APP_NAME').". Enjoy!";
         if($user != null){
-            Mail::to($user['email'])->send(new OtpEmail($user, $otpCode, $text, $this->timezone));
+            Mail::to($user['email'])->send(new OtpEmail($user, $otpCode, $text, $this->response['timezone']));
             return true;
         }
         return false;
@@ -88,7 +88,7 @@ class EmailController extends APIController
         $user = $this->retrieveAccountDetails($id);
         $text = "to continue for money transfer from your account.";
         if($user != null){
-            Mail::to($user['email'])->send(new OtpEmail($user, $otpCode, $text, $this->timezone));
+            Mail::to($user['email'])->send(new OtpEmail($user, $otpCode, $text, $this->response['timezone']));
             return true;
         }
         return false;
@@ -98,7 +98,7 @@ class EmailController extends APIController
         $data = $request->all();
         $user = $this->retrieveAccountDetails($data['account_id']);
         if($user != null){
-            Mail::to($data['to_email'])->send(new Referral($user, $data['content'], $data['to_email'], $this->timezone));
+            Mail::to($data['to_email'])->send(new Referral($user, $data['content'], $data['to_email'], $this->response['timezone']));
             $this->response['data'] = true;
         }
         return $this->response();
@@ -107,7 +107,7 @@ class EmailController extends APIController
     public function receipt($accountId, $data){
         $user = $this->retrieveAccountDetails($accountId);
         if($user != null && sizeof($data) > 0){
-            Mail::to($user['email'])->send(new Receipt($user, $data[0], $this->timezone));
+            Mail::to($user['email'])->send(new Receipt($user, $data[0], $this->response['timezone']));
             return true;
         }
         return false;
@@ -116,7 +116,7 @@ class EmailController extends APIController
     public function ledger($accountId, $details, $subject){
         $user = $this->retrieveAccountDetails($accountId);
         if($user != null){
-            Mail::to($user['email'])->send(new Ledger($user, $details, $subject, $this->timezone));
+            Mail::to($user['email'])->send(new Ledger($user, $details, $subject, $this->response['timezone']));
             return true;
         }
         return false;
@@ -126,7 +126,7 @@ class EmailController extends APIController
         $online = app('Increment\Account\Http\AccountOnlineController')->getStatus($accountId);
         $user = $this->retrieveAccountDetails($accountId);
         if($user != null && $online == false){
-            Mail::to($user['email'])->send(new NewMessage($user, $this->timezone));
+            Mail::to($user['email'])->send(new NewMessage($user, $this->response['timezone']));
             return true;
         }
         return false;
@@ -136,7 +136,7 @@ class EmailController extends APIController
         $data = $request->all();
         $user = $this->retrieveAccountDetails($data['account_id']);
         if($user != null){
-            Mail::to($user['email'])->send(new LoginEmail($user, $this->timezone));
+            Mail::to($user['email'])->send(new LoginEmail($user, $this->response['timezone']));
             $this->response['data'] = true;
         }
         return $this->response();
@@ -146,16 +146,17 @@ class EmailController extends APIController
     public function investment($accountId, $details, $subject){
         $user = $this->retrieveAccountDetails($accountId);
         if($user != null){
-            Mail::to($user['email'])->send(new Ledger($user, $details, $subject, $timezone));
+            Mail::to($user['email'])->send(new Ledger($user, $details, $subject, $this->response['timezone']));
             return true;
         }
         return false;
     }
 
     public function deposit($accountId, $details, $subject){
+        $this->localization();
         $user = $this->retrieveAccountDetails($accountId);
         if($user != null){
-            Mail::to($user['email'])->send(new Deposit($user, $details, $subject, $timezone));
+            Mail::to($user['email'])->send(new Deposit($user, $details, $subject, $this->response['timezone']));
             return true;
         }
         return false;
