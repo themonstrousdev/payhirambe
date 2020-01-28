@@ -49,6 +49,49 @@ class LedgerController extends APIController
       return doubleval($result);
     }
 
+    public function createOnDeposit(Request $request){
+     
+      $data = $request->all();
+      $ledger = new Ledger();
+      $code = $this->generateCode();
+      $ledger->code = $code;
+      $ledger->account_id = $data['account_id'];
+      $ledger->amount = $data['amount'];
+      $ledger->currency = $data['currency'];
+      $ledger->description = 'Deposit';
+      $ledger->payload = 'deposit';
+      $ledger->payload_value = $data['code'];
+      $ledger->created_at = Carbon::now();
+      $ledger->save();
+
+ //     sent email
+      $description = 'Your deposit transaction was successfully posted with the amount of '. $data['currency'].' '.$data['amount'];
+      
+      $details = array(
+        'title' => $description,
+        'transaction_id' => $code
+      );
+
+      $subject = 'Deposit payment confirmation';
+      app('App\Http\Controllers\EmailController')->ledger($accountId, $details, $subject);  
+
+      $notification = array(
+        'to'    => $data['account_id'],
+        'from'  => $data['from'],
+        'payload' => 'ledger',
+        'payload_value' => $code,
+        'route' => '/dashboard',
+        'created_at' => Carbon::now()
+      );
+
+
+      app($this->notificationClass)->createByParams($notification);
+
+      $this->response['data'] = $ledger->id;
+      return $this->response();
+    }
+
+
     public function addToLedger($accountId, $amount, $description, $payload, $payloadValue, $to){
       $ledger = new Ledger();
       $code = $this->generateCode();
@@ -80,6 +123,7 @@ class LedgerController extends APIController
       $ledger->account_id = $data['account_id'];
       $ledger->amount = $data['amount'];
       $ledger->description = $data['description'];
+      $ledger->currency = $data['currency'];
       $ledger->payload = $data['payload'];
       $ledger->payload_value = $data['payload_value'];
       $ledger->created_at = Carbon::now();
