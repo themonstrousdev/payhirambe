@@ -11,9 +11,11 @@ class DepositController extends APIController
 {
     public $requestClass = 'App\Http\Controllers\RequestMoneyController';
     public $ledgerClass = 'App\Http\Controllers\LedgerController';
+    
     function __construct(){
       $this->model = new Deposit();
     }
+
     public function retrieve(Request $request){
       $data = $request->all();
       $this->retrieveDB($data);
@@ -31,21 +33,15 @@ class DepositController extends APIController
 
       return $this->response();
     }
-    public function update(Request $request){
-      $response = array(
-        'data'  => null,
-        'error' => null,
-        'timestamps' => Carbon::now()
-      );
+
+    public function create(Request $request){
       $data = $request->all();
-      $deposit = new Deposit();
-      $deposit->code = $this->generateCode();
-      $deposit->account_id = $data['account_id'];
-      $deposit->amount = $data['amount'];
-      $deposit->description = $data['message'];
-      $deposit->created_at = Carbon::now();
-      $deposit->save();
+      $data['code'] = $this->generateCode();
+      $this->model = new Deposit();
+      $this->insertDB($data);
+      return $this->response();
     }
+
     public function generateCode(){
       $code = substr(str_shuffle("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 32);
       $codeExist = Deposit::where('code', '=', $code)->get();
