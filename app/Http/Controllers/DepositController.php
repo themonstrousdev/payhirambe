@@ -16,7 +16,8 @@ class DepositController extends APIController
       $this->model = new Deposit();
 
       $this->notRequired =  array(
-        'description'
+        'description',
+        'deposit_slip'
       );
     }
 
