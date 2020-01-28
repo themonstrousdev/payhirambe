@@ -14,6 +14,10 @@ class DepositController extends APIController
     
     function __construct(){
       $this->model = new Deposit();
+
+      $this->notRequired =  array(
+        'description'
+      );
     }
 
     public function retrieve(Request $request){
