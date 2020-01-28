@@ -11,6 +11,7 @@ class DepositController extends APIController
 {
     public $requestClass = 'App\Http\Controllers\RequestMoneyController';
     public $ledgerClass = 'App\Http\Controllers\LedgerController';
+    public $emailClass = 'App\Http\Controllers\EmailController';
     
     function __construct(){
       $this->model = new Deposit();
@@ -44,6 +45,12 @@ class DepositController extends APIController
       $data['code'] = $this->generateCode();
       $this->model = new Deposit();
       $this->insertDB($data);
+      if($this->response['data'] > 0){
+        $deposit = Deposit::where('id', '=', $this->response['data'])->get();
+        $result = $deposit[0];
+        $result['amount'] = number_format(($result['amount'] * (-1)), 2);
+        app($this->emailClass)->deposit($data['account_id'], $result], 'Payment Confirmation for Deposit Transaction');
+      }
       return $this->response();
     }
 

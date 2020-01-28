@@ -13,6 +13,7 @@ use App\Mail\NotifyReferrer;
 use App\Mail\Receipt;
 use App\Mail\NewMessage;
 use App\Mail\Ledger;
+use App\Mail\Deposit;
 use Illuminate\Http\Request;
 
 class EmailController extends APIController
@@ -146,6 +147,15 @@ class EmailController extends APIController
         $user = $this->retrieveAccountDetails($accountId);
         if($user != null){
             Mail::to($user['email'])->send(new Ledger($user, $details, $subject, $timezone));
+            return true;
+        }
+        return false;
+    }
+
+    public function deposit($accountId, $details, $subject){
+        $user = $this->retrieveAccountDetails($accountId);
+        if($user != null){
+            Mail::to($user['email'])->send(new Deposit($user, $details, $subject, $timezone));
             return true;
         }
         return false;
