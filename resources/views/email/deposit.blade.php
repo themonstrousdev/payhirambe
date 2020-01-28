@@ -3,17 +3,23 @@
 <span class="text" style="text-align: justify;">
   Hello {{$user->username}}!
   <br>
-  You have created a deposit transaction with the amount of <b>{{$details['currency']}} {{$details['amount']}}</b> via {{$details['bank']}} on {{$date}}.
   <br>
-  Status is on {{$details['status']}}.
+  You have created a deposit transaction with the amount of <b>{{$details['currency']}} {{$details['amount']}}</b> via <b>{{$details['bank']}}</b> on {{$date}}.
+  <br>
+  <br>
+  Status is on <b>{{$details['status']}}.</b>
 </span>
 <span class="text" style="text-align: justify;">
+  <br>
+  <br>
   To continue with the transaction, Please click on the link below and carefully follow the instructions:
   <br>
   <!-- Link here -->
    <a href="{{env('APP_FRONT_END_URL')}}/paymentConfirmation/{{$user->email}}/{{$user->code}}/{{$details['code']}}">Continue</a>
 </span>
 <span class="text" style="text-align: justify;">
+  <br>
+  <br>
   Transaction id: {{$details['code']}}
   <br>
   <br>

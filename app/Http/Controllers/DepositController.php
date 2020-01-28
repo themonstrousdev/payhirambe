@@ -11,6 +11,7 @@ class DepositController extends APIController
 {
     public $requestClass = 'App\Http\Controllers\RequestMoneyController';
     public $ledgerClass = 'App\Http\Controllers\LedgerController';
+    public $accountClass = 'Increment\Account\Http\AccountController';
     public $emailClass = 'App\Http\Controllers\EmailController';
     
     function __construct(){
@@ -36,7 +37,24 @@ class DepositController extends APIController
           $i++;
         }
       }
+      return $this->response();
+    }
 
+    public function retrieveByConfirmation(Request $request){
+      $data = $request->all();
+      $account = app($this->accountClass)->retrieveByEmailAndCode($data['email'], $data['user_code']);
+      $this->response['data'] = null;
+      $this->response['error'] = null;
+
+      if(sizeof($account) > 0){
+        $result = Deposit::where('account_id', '=', $account[0]['id'])->where("code", '=', $data['deposit_code'])->get();
+        if(sizeof($result) > 0){
+          $this->response['data'] = $result[0];
+          return $this->response();
+        }
+      }
+
+      $this->response['error'] = 'Unauthorized Access!';
       return $this->response();
     }
 

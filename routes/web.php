@@ -202,6 +202,7 @@ $route = env('PACKAGE_ROUTE', '').'/deposits/';
 $controller = 'DepositController@';
 Route::post($route.'create', $controller."create");
 Route::post($route.'retrieve', $controller."retrieve");
+Route::post($route.'retrieve_by_confirmation', $controller."retrieveByConfirmation");
 Route::post($route.'delete', $controller."delete");
 Route::post($route.'update', $controller."update");
 
