@@ -72,6 +72,14 @@ class DepositController extends APIController
       return $this->response();
     }
 
+    public function updateByParams($column, $value){
+      Deposit::where($column, '=', $value)->update(array(
+        'status' => 'approved',
+        'updated_at' => Carbon::now()
+      ));
+      return true;
+    }
+
     public function generateCode(){
       $code = substr(str_shuffle("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 32);
       $codeExist = Deposit::where('code', '=', $code)->get();

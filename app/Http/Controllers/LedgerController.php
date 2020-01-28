@@ -12,6 +12,7 @@ class LedgerController extends APIController
       $this->model = new Ledger();
     }
     public $notificationClass = 'Increment\Common\Notification\Http\NotificationController';
+    public $depositClass = ' App\Http\Controllers\DepositController';
     public function dashboard($accountId){
       return array(
         'ledger' => $this->retrievePersonal($accountId),
@@ -63,29 +64,29 @@ class LedgerController extends APIController
       $ledger->created_at = Carbon::now();
       $ledger->save();
 
- //     sent email
-      $description = 'Your deposit transaction was successfully posted with the amount of '. $data['currency'].' '.$data['amount'];
+      if($ledger->id){
+        app($this->depositClass)->updateByParams('id', $data['id']);
 
-      $details = array(
-        'title' => $description,
-        'transaction_id' => $code
-      );
+        $description = 'Your deposit transaction was successfully posted with the amount of '. $data['currency'].' '.$data['amount'];
 
-      $subject = 'Deposit payment confirmation';
-      app('App\Http\Controllers\EmailController')->ledger($data['account_id'], $details, $subject);  
+        $details = array(
+          'title' => $description,
+          'transaction_id' => $code
+        );
 
-      $notification = array(
-        'to'    => $data['account_id'],
-        'from'  => $data['from'],
-        'payload' => 'ledger',
-        'payload_value' => $code,
-        'route' => '/dashboard',
-        'created_at' => Carbon::now()
-      );
+        $subject = 'Deposit payment confirmation';
+        app('App\Http\Controllers\EmailController')->ledger($data['account_id'], $details, $subject);  
 
-
-      app($this->notificationClass)->createByParams($notification);
-
+        $notification = array(
+          'to'    => $data['account_id'],
+          'from'  => $data['from'],
+          'payload' => 'ledger',
+          'payload_value' => $code,
+          'route' => '/dashboard',
+          'created_at' => Carbon::now()
+        );
+        app($this->notificationClass)->createByParams($notification);
+      }
       $this->response['data'] = $ledger->id;
       return $this->response();
     }
