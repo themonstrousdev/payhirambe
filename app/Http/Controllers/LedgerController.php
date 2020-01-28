@@ -50,7 +50,6 @@ class LedgerController extends APIController
     }
 
     public function createOnDeposit(Request $request){
-     
       $data = $request->all();
       $ledger = new Ledger();
       $code = $this->generateCode();
@@ -66,14 +65,14 @@ class LedgerController extends APIController
 
  //     sent email
       $description = 'Your deposit transaction was successfully posted with the amount of '. $data['currency'].' '.$data['amount'];
-      
+
       $details = array(
         'title' => $description,
         'transaction_id' => $code
       );
 
       $subject = 'Deposit payment confirmation';
-      app('App\Http\Controllers\EmailController')->ledger($accountId, $details, $subject);  
+      app('App\Http\Controllers\EmailController')->ledger($data['account_id'], $details, $subject);  
 
       $notification = array(
         'to'    => $data['account_id'],
