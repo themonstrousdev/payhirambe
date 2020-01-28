@@ -48,8 +48,8 @@ class DepositController extends APIController
       if($this->response['data'] > 0){
         $deposit = Deposit::where('id', '=', $this->response['data'])->get();
         $result = $deposit[0];
-        $result['amount'] = number_format(($result['amount'] * (-1)), 2);
-        app($this->emailClass)->deposit($data['account_id'], $result], 'Payment Confirmation for Deposit Transaction');
+        $result['amount'] = number_format($result['amount'], 2);
+        app($this->emailClass)->deposit($data['account_id'], $result, 'Payment Confirmation:'.$result['code']);
       }
       return $this->response();
     }

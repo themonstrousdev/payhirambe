@@ -10,7 +10,7 @@
     </h1>
 </span>
 <span class="text" style="text-align: center;">
-    To continue with the transaction, Please click on the link "Continue" below and carefully follow the instructions:
+    To continue with the transaction, Please click on the link below and carefully follow the instructions:
     <!-- Link here -->
      <a href="{{env('APP_FRONT_END_URL')}}/paymentConfirmation/{{$user->email}}/{{$user->code}}/{{$details['code']}}">Continue</a>
 </span>
