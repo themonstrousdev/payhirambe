@@ -16,7 +16,7 @@ class DepositController extends APIController
     
     function __construct(){
       $this->model = new Deposit();
-
+      $this->localization();
       $this->notRequired =  array(
         'description',
         'deposit_slip'
@@ -49,6 +49,7 @@ class DepositController extends APIController
       if(sizeof($account) > 0){
         $result = Deposit::where('account_id', '=', $account[0]['id'])->where("code", '=', $data['deposit_code'])->get();
         if(sizeof($result) > 0){
+          $result[0]['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result[0]['created_at'])->copy()->tz($this->response['timezone'])->format('F j, Y h:i A');
           $this->response['data'] = $result[0];
           return $this->response();
         }
