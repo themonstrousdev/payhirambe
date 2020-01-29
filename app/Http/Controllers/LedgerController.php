@@ -14,6 +14,7 @@ class LedgerController extends APIController
     public $notificationClass = 'Increment\Common\Notification\Http\NotificationController';
     public $depositClass = 'App\Http\Controllers\DepositController';
     public $withdrawalClass = 'App\Http\Controllers\WithdrawController';
+    public $requestClass = 'App\Http\Controllers\RequestMoneyController';
     public function dashboard($accountId){
       return array(
         'ledger' => $this->retrievePersonal($accountId),
@@ -51,7 +52,7 @@ class LedgerController extends APIController
       // subtract total pending withdrawal
       // substract total pending requests
       $totalWithdrawal = app($this->withdrawalClass)->getTotalSumByParams('account_id', $accountId);
-      $totalRequest = 0;
+      $totalRequest = app($this->requestClass)->getTotalRequest($accountId);
       $total = doubleval($ledger) - $totalWithdrawal - $totalRequest;
       return doubleval($total);
     }
