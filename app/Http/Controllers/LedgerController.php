@@ -101,7 +101,7 @@ class LedgerController extends APIController
     public function createOnWithdrawal(Request $request){
       // check if the account is sufficient
       
-      $total = $this->$this->retrievePersonal($data['account_id']);
+      $total = $this->retrievePersonal($data['account_id']);
       if(doubleval($total) <= 0){
         $this->response['data'] = null;
         $this->response['error'] = 'Insufficient Balance';
