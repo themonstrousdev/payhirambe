@@ -64,7 +64,7 @@ class WithdrawController extends APIController
         $i++;
       }
     }
-    $this->response['ledger'] = app($this->$ledgerClass)->retrievePersonal($data['account_id']);
+    $this->response['ledger'] = app($this->ledgerClass)->retrievePersonal($data['account_id']);
     return $this->response();
   }
 
