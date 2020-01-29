@@ -77,7 +77,7 @@ class WithdrawController extends APIController
   }
 
   public function updateByParams($column, $value){
-    Deposit::Withdraw($column, '=', $value)->update(array(
+    Withdraw::where($column, '=', $value)->update(array(
       'status' => 'completed',
       'updated_at' => Carbon::now()
     ));
