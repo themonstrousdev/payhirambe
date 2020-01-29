@@ -100,7 +100,7 @@ class LedgerController extends APIController
 
     public function createOnWithdrawal(Request $request){
       // check if the account is sufficient
-      
+      $data = $request->all();
       $total = $this->retrievePersonal($data['account_id']);
       if(doubleval($total) <= 0){
         $this->response['data'] = null;
@@ -111,7 +111,6 @@ class LedgerController extends APIController
       // credit to ledger of the requestor with charge
 
       $totalAmount = (doubleval($data['amount']) + doubleval($data['charge'])) * -1;
-      $data = $request->all();
       $creditLedger = new Ledger();
       $code = $this->generateCode();
       $creditLedger->code = $code;
