@@ -50,7 +50,7 @@ class LedgerController extends APIController
       $ledger = Ledger::where('account_id', '=', $accountId)->sum('amount');
       // subtract total pending withdrawal
       // substract total pending requests
-      $totalWithdrawal = app($withdrawalClass)->getTotalSumByParams('account_id', $accountId);
+      $totalWithdrawal = app($this->withdrawalClass)->getTotalSumByParams('account_id', $accountId);
       $totalRequest = 0;
       $total = doubleval($ledger) - $totalWithdrawal - $totalRequest;
       return doubleval($total);
