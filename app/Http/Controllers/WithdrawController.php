@@ -15,6 +15,7 @@ class WithdrawController extends APIController
   public $notificationClass = 'App\Http\Controllers\NotificationSettingController';
   
   function __construct(){
+    $this->localization();
     $this->model = new Withdraw();
   }
 
@@ -31,7 +32,7 @@ class WithdrawController extends APIController
         $data['code'] = $this->generateCode();
         $this->insertDB($data);
       }
-    return response()->json($response);
+    return $this->response();
   }
 
   public function retrieve(Request $request){
