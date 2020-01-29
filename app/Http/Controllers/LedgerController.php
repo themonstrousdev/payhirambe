@@ -13,6 +13,7 @@ class LedgerController extends APIController
     }
     public $notificationClass = 'Increment\Common\Notification\Http\NotificationController';
     public $depositClass = 'App\Http\Controllers\DepositController';
+    public $withdrawalClass = 'App\Http\Controllers\WithdrawController';
     public function dashboard($accountId){
       return array(
         'ledger' => $this->retrievePersonal($accountId),
@@ -46,8 +47,13 @@ class LedgerController extends APIController
     }
 
     public function retrievePersonal($accountId){
-      $result = Ledger::where('account_id', '=', $accountId)->sum('amount');
-      return doubleval($result);
+      $ledger = Ledger::where('account_id', '=', $accountId)->sum('amount');
+      // subtract total pending withdrawal
+      // substract total pending requests
+      $totalWithdrawal = app($withdrawalClass)->getTotalSumByParams('account_id', $accountId);
+      $totalRequest = 0;
+      $total = doubleval($ledger) - $totalWithdrawal - $totalRequest;
+      return doubleval($total);
     }
 
     public function createOnDeposit(Request $request){

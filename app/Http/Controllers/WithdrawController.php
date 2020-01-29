@@ -53,6 +53,19 @@ class WithdrawController extends APIController
     return $this->response();
   }
 
+  public function getTotalSumByParams($column, $value){
+    $result = Withdraw::where('status', '=', 'pending')->where($column, '=', $value)->get();
+    $total = 0;
+    if(sizeof($result) > 0){
+      $i = 0;
+      foreach ($result as $key) {
+        $total += doubleval($result[$i]['amount']) + doubleval($result[$i]['charge']);
+        $i++;
+      }
+    }
+    return doubleval($total);
+  }
+
     public function generateCode(){
     $code = substr(str_shuffle("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 32);
     $codeExist = Withdraw::where('code', '=', $code)->get();
