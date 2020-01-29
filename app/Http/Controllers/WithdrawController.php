@@ -13,41 +13,23 @@ class WithdrawController extends APIController
 {
   public $ledgerClass = 'App\Http\Controllers\LedgerController';
   public $notificationClass = 'App\Http\Controllers\NotificationSettingController';
+  
   function __construct(){
     $this->model = new Withdraw();
   }
+
   public function create(Request $request){
-      $response = array(
-        'data'  => null,
-        'otp'   => null,
-        'error' => null,
-        'timestamps' => Carbon::now()
-      );
       $data = $request->all();
-      $amount = floatval($data['amount']);
+      $amount = floatval($data['amount']) + floatval($data['charge']);
       $myBalance = floatval(app($this->ledgerClass)->retrievePersonal($data['account_id']));
       $description = 'test';
       $accountId = $data['account_id'];
       if($myBalance < $amount){
-        $response['error'] = 'You have insufficient balance. Your balance is PHP '.$myBalance.' balance.';
+        $this->response['error'] = 'You have insufficient balance. Your current balance is '.$data['currency'].' '.$myBalance.' balance.';
       }else{
-        if($data['otp'] == 0){
-          $code = app($this->notificationClass)->generateOTPFundTransfer($data['account_id']);
-          $response['otp'] = true;
-        }else if($data['otp'] == 1){
-          $charge = floatval($data['charge']);
-          $withdrawModel = new Withdraw();
-          $withdrawModel->code = $this->generateCode();
-          $withdrawModel->account_id = $data['account_id'];
-          $withdrawModel->amount = $amount;
-          $withdrawModel->charge = $charge;
-          $withdrawModel->created_at = Carbon::now();
-          $withdrawModel->payload = $data['payload'];
-          $withdrawModel->payload_value = $data['payload_value'];
-          $withdrawModel->otp_code = $data['otp_code'];
-          $withdrawModel->save();
-          $response['data'] = $withdrawModel->id;
-        }
+        $this->model = new Withdraw();
+        $data['code'] = $this->generateCode();
+        $this->insertDB($data);
       }
     return response()->json($response);
   }
