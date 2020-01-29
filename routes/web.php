@@ -136,6 +136,7 @@ Route::post($route.'create', $controller."create");
 Route::post($route.'retrieve', $controller."retrieve");
 Route::post($route.'dashboard', $controller."dashboard");
 Route::post($route.'create_on_deposit', $controller."createOnDeposit");
+Route::post($route.'create_on_withdrawal', $controller."createOnWithdrawal");
 Route::post($route.'summary', $controller."summary");
 Route::post($route.'delete', $controller."delete");
 Route::post($route.'update', $controller."update");

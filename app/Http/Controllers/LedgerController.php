@@ -72,7 +72,7 @@ class LedgerController extends APIController
       $ledger->save();
 
       if($ledger->id){
-        app($this->depositClass)->updateByParams('id', $data['id']);
+        app($this->depositClass)->updateByParams('id', $data['id']); 
 
         $description = 'Your deposit transaction was successfully posted with the amount of '. $data['currency'].' '.$data['amount'];
 
@@ -98,6 +98,102 @@ class LedgerController extends APIController
       return $this->response();
     }
 
+    public function createOnWithdrawal(Request $request){
+      // check if the account is sufficient
+      
+      $total = $this->$this->retrievePersonal($data['account_id']);
+      if(doubleval($total) <= 0){
+        $this->response['data'] = null;
+        $this->response['error'] = 'Insufficient Balance';
+        return $this->response();
+      }
+
+      // credit to ledger of the requestor with charge
+
+      $totalAmount = (doubleval($data['amount']) + doubleval($data['charge'])) * -1;
+      $data = $request->all();
+      $creditLedger = new Ledger();
+      $code = $this->generateCode();
+      $creditLedger->code = $code;
+      $creditLedger->account_id = $data['account_id'];
+      $creditLedger->amount = $totalAmount;
+      $creditLedger->currency = $data['currency'];
+      $creditLedger->description = 'Withdrawal via '.$data['bank'].' using the ff. account:'.$data['account_name'].'/'.$data['account_number'];
+      $creditLedger->payload = 'withdrawal';
+      $creditLedger->payload_value = $data['code'];
+      $creditLedger->created_at = Carbon::now();
+      $creditLedger->save();
+
+      if($creditLedger->id){
+        // update withdrawal to completed
+        app($this->withdrawalClass)->updateByParams('id', $data['id']);
+
+        $description = 'Your account was credited with the amount of '. $data['currency'].' '.$totalAmount.' for withdrawal transaction via '.$data['bank'].' using the ff. account:'.$data['account_name'].'/'.$data['account_number'];
+
+        $details = array(
+          'title' => $description,
+          'transaction_id' => $code
+        );
+
+        $subject = 'Withdrawal via '.$data['bank'];
+        // send email
+        app('App\Http\Controllers\EmailController')->ledger($data['account_id'], $details, $subject);  
+
+
+        // send notifications
+        $notification = array(
+          'to'    => $data['account_id'],
+          'from'  => $data['from'],
+          'payload' => 'ledger',
+          'payload_value' => $code,
+          'route' => '/dashboard',
+          'created_at' => Carbon::now()
+        );
+        app($this->notificationClass)->createByParams($notification);
+      }
+
+      // debit to the payhiram account
+
+      $debitLedger = new Ledger();
+      $code = $this->generateCode();
+      $debitLedger->code = $code;
+      $debitLedger->account_id = env('PAYHIRAM_ACCOUNT');
+      $debitLedger->amount = ($totalAmount * -1);
+      $debitLedger->currency = $data['currency'];
+      $debitLedger->description = 'Debit from withdrawal via '.$data['bank'].' using the ff. account:'.$data['account_name'].'/'.$data['account_number'];
+      $debitLedger->payload = 'withdrawal';
+      $debitLedger->payload_value = $data['code'];
+      $debitLedger->created_at = Carbon::now();
+      $debitLedger->save();
+
+      if($debitLedger->id){
+
+        $description = 'Your account was debited with the amount of '. $data['currency'].' '.$totalAmount.' from withdrawal transaction via '.$data['bank'].' using the ff. account:'.$data['account_name'].'/'.$data['account_number'];
+
+        $details = array(
+          'title' => $description,
+          'transaction_id' => $code
+        );
+
+        $subject = 'Debit withdrawal via '.$data['bank'];
+        // send email
+        app('App\Http\Controllers\EmailController')->ledger(env('PAYHIRAM_ACCOUNT'), $details, $subject);  
+
+
+        // send notifications
+        $notification = array(
+          'to'    => env('PAYHIRAM_ACCOUNT'),
+          'from'  => $data['from'],
+          'payload' => 'ledger',
+          'payload_value' => $code,
+          'route' => '/dashboard',
+          'created_at' => Carbon::now()
+        );
+        app($this->notificationClass)->createByParams($notification);
+      }
+      $this->response['data'] = $debitLedger->id;
+      return $this->response();
+    }
 
     public function addToLedger($accountId, $amount, $description, $payload, $payloadValue, $to){
       $ledger = new Ledger();
