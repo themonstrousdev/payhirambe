@@ -29,6 +29,7 @@ class WithdrawController extends APIController
         $this->response['error'] = 'You have insufficient balance. Your current balance is '.$data['currency'].' '.$myBalance.' balance.';
       }else{
         $this->model = new Withdraw();
+        $data['status'] = 'pending';
         $data['code'] = $this->generateCode();
         $this->insertDB($data);
       }
