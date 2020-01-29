@@ -17,8 +17,8 @@ class UpdateWithdrawsTableV1 extends Migration
             $table->dropColumn(['payload', 'payload_value', 'otp_code']);
             $table->string('currency')->default('PHP')->after('account_id');
             $table->string('bank')->after('charge');
-            $table->string('acount_name')->after('bank');
-            $table->string('acount_number')->after('acount_name');
+            $table->string('account_name')->after('bank');
+            $table->string('account_number')->after('account_name');
         });
     }
 
