@@ -54,6 +54,7 @@ class WithdrawController extends APIController
   }
 
   public function getByParams($column, $value){
+    $this->localization();
     $result = Withdraw::where($column, '=', $value)->where('status', '=', 'pending')->get();
     if(sizeof($result) > 0){
       $i = 0;
