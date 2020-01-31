@@ -66,7 +66,7 @@ class WithdrawController extends APIController
   }
 
   public function getTotalSumByParams($column, $value){
-    $result = Withdraw::where('status', '=', 'pending')->where($column, '=', $value)->get();
+    $result = Withdraw::where('status', '=', 'pending')->where($column, '=', $value)->orderBy('created_at', 'desc')->get();
     $total = 0;
     if(sizeof($result) > 0){
       $i = 0;
