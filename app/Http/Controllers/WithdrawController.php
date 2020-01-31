@@ -54,12 +54,11 @@ class WithdrawController extends APIController
   }
 
   public function getByParams($column, $value){
-    $this->localization();
     $result = Withdraw::where($column, '=', $value)->where('status', '=', 'pending')->get();
     if(sizeof($result) > 0){
       $i = 0;
       foreach ($result as $key) {
-        $$result[$i]['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result[$i]['created_at'])->copy()->tz($this->response['timezone'])->format('F j, Y h:i A');
+        $result[$i]['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result[$i]['created_at'])->copy()->tz($this->response['timezone'])->format('F j, Y h:i A');
         $i++;
       }
     }
