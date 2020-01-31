@@ -21,7 +21,8 @@ class LedgerController extends APIController
         'available' => $this->available(),
         'approved' => app('App\Http\Controllers\InvestmentController')->approved(),
         'total_requests' => app('App\Http\Controllers\RequestMoneyController')->total(),
-        'request_status' => app('App\Http\Controllers\RequestMoneyController')->requestStatus($accountId)
+        'request_status' => app('App\Http\Controllers\RequestMoneyController')->requestStatus($accountId),
+        'withdrawal'  => app($this->withdrawalClass)->getByParams('account_id', $accountId)
       );
     }
 
