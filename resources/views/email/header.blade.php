@@ -114,6 +114,6 @@
     </head>
     <body>
 		<span class="header">
-		    <img src="{{env('APP_URL')}}/storage/logo/logo.png" height="60px" width="60px">
+		    <img src="{{env('APP_URL')}}{{env('PACKAGE_ROUTE')}}/storage/logo/logo.png" height="60px" width="60px">
 		    <span><label class="text-secondary">{{env('APP_NAME')}}</label></span>
 		</span>
