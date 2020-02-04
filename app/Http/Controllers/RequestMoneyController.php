@@ -340,7 +340,7 @@ class RequestMoneyController extends APIController
             $result[$i]['educations'] = app($this->educationClass)->getByParams('account_id', $result[$i]['account_id']);
             $result[$i]['comakers'] = app($this->comakerClass)->getByParams($result[$i]['account_id'], $result[$i]['id']);
             $result[$i]['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result[$i]['created_at'])->copy()->tz($this->response['timezone'])->format('F j, Y h:i A');
-            $result[$i]['needed_on_human'] = Carbon::createFromFormat('Y-m-d', $result[$i]['needed_on'])->copy()->tz($this->response['timezone'])->format('F j, Y h:i A');
+            $result[$i]['needed_on_human'] = Carbon::createFromFormat('Y-m-d', $result[$i]['needed_on'])->copy()->tz($this->response['timezone'])->format('F j, Y'); // should not have a time
             $result[$i]['total'] = $this->getTotalBorrowed($result[$i]['account_id']);
             $result[$i]['initial_amount'] = $result[$i]['amount'];
             $result[$i]['amount'] = $amount - $invested['total'];
