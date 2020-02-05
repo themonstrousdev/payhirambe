@@ -78,7 +78,7 @@ class RequestMoneyController extends APIController
       $data = $request->all();
       $error = null;
       $responseData = null;
-      $result = RequestMoney::where('code', '=', $data['code'])->where('status', '=', 0)->get();
+      $result = RequestMoney::where('code', '=', $data['code'])->where('status', '=', 1)->get();
       if(sizeof($result) > 0){
         $result = $result[0];
         // get approved peer
