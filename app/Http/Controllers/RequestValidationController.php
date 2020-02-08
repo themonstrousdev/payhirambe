@@ -13,7 +13,7 @@ class RequestValidationController extends APIController
   }
 
   public function getByParams($column, $value, $type = 1){
-    $requirements = null;
+    $requirements = array();
     if(intval($type) == 1){
       $requirements = array(
         array(
