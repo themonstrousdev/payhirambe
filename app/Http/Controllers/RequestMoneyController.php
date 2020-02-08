@@ -137,7 +137,7 @@ class RequestMoneyController extends APIController
       }
       $type = intval($this->requestData['type']);
       if($type == 1 || $type == 2 || $type == 4){
-        $description = ($type == 1) ? 'money transfer request' : 'withdrawal request';
+        $description = ($type == 1 || $type == 4) ? 'money transfer request' : 'withdrawal request';
         // Credit request amount from requestor
         $this->addToLedger(array(
           'account_id'  => $this->requestData['account_id'],
