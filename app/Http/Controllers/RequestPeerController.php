@@ -37,7 +37,7 @@ class RequestPeerController extends APIController
         'to' => $data['to'],
         'from' => $data['account_id'],
         'payload' => 'request',
-        'payload_value' => $this->response['data'],
+        'payload_value' => $data['request_id'],
         'route' => '/requests/'.$requestData['code'],
         'created_at' => Carbon::now()
       );
