@@ -85,9 +85,10 @@ class EmailController extends APIController
 
     public function otpEmailFundTransfer($id, $otpCode){
         $user = $this->retrieveAccountDetails($id);
+        $subject = 'OTP Notification';
         $text = "to continue for money transfer from your account.";
         if($user != null){
-            Mail::to($user['email'])->send(new OtpEmail($user, $otpCode, $text, $this->response['timezone']));
+            Mail::to($user['email'])->send(new OtpEmail($subject, $user, $otpCode, $text, $this->response['timezone']));
             return true;
         }
         return false;
