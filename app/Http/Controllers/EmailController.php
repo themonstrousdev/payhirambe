@@ -74,11 +74,10 @@ class EmailController extends APIController
         return false;
     }
 
-    public function otpEmail($id, $otpCode){
+    public function otpEmail($id, $otpCode, $subject, $text){
         $user = $this->retrieveAccountDetails($id);
-        $text = "to continue your activity to ".env('APP_NAME').". Enjoy!";
         if($user != null){
-            Mail::to($user['email'])->send(new OtpEmail($user, $otpCode, $text, $this->response['timezone']));
+            Mail::to($user['email'])->send(new OtpEmail($subject, $user, $otpCode, $text, $this->response['timezone']));
             return true;
         }
         return false;
