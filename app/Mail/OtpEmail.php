@@ -27,6 +27,7 @@ class OtpEmail extends Mailable
         $this->otpCode = $otpCode;
         $this->text = $text;
         $this->date = Carbon::now()->copy()->tz($timezone)->format('F j, Y h:i A');
+        $this->subject = $subject;
     }
 
     /**
