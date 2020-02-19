@@ -12,6 +12,27 @@ class NotificationSettingController extends APIController
     $this->notRequired = array('code');
   }
 
+  public function insert($accountId){
+    $previous = NotificationSetting::where('account_id', '=', $accountId)->get();
+    if(sizeof($previous) > 0){
+      return false;
+    }else{
+      $code = $this->otpCodeGenerator();
+      $insertData = array(
+        'code'        => $code,
+        'account_id'  => $accountId,
+        'email_login' => 0,
+        'email_otp'   => 0,
+        'email_pin'   => 1,
+        'sms_login'   => 0,
+        'sms_otp'     => 0,
+        'created_at'  => Carbon::now()
+      );
+      NotificationSetting::insert($insertData);
+      return true;
+    }
+  }
+
   public function manageNotification($id){
   	$result = NotificationSetting::where('account_id', '=', $id)->get();
   	if(sizeof($result) > 0){
@@ -89,6 +110,7 @@ class NotificationSettingController extends APIController
         'account_id'  => $data['account_id'],
         'email_login' => 0,
         'email_otp'   => 0,
+        'email_pin'   => 0,
         'sms_login'   => 0,
         'sms_otp'     => 0,
         'created_at'  => Carbon::now()
