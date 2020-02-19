@@ -23,7 +23,8 @@ class LedgerController extends APIController
         'total_requests' => app('App\Http\Controllers\RequestMoneyController')->total(),
         'personal_total_requests' => app('App\Http\Controllers\RequestMoneyController')->getTotalActiveRequest($accountId),
         'request_status' => app('App\Http\Controllers\RequestMoneyController')->requestStatus($accountId),
-        'withdrawal'  => app($this->withdrawalClass)->getByParams('account_id', $accountId)
+        'withdrawal'  => app($this->withdrawalClass)->getByParams('account_id', $accountId),
+        'currency' => 'PHP'
       );
     }
 
