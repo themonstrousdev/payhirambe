@@ -43,6 +43,14 @@ class APIController extends Controller
     'com.payhiram'
   );
 
+  protected $whiteListedDomainOrigin = array(
+    'https://payhiram.ph',
+    'https://www.payhiram.ph',
+    'http://www.payhiram.ph',
+    'http://payhiram.ph',
+    'com.payhiram'
+  );
+
   protected $notRequired = array();
   protected $responseType = 'json'; 
   protected $rawRequest = null;
@@ -51,7 +59,14 @@ class APIController extends Controller
 
   public function checkAuthenticatedUser()
   {
-    if(!in_array($_SERVER['HTTP_REFERER'], $this->whiteListedDomain)){
+    if(!isset($_SERVER['HTTP_REFERER']) || !in_array($_SERVER['HTTP_REFERER'], $this->whiteListedDomain)){
+      $this->response['error'] = array(
+        'message' => 'Invalid Domain!',
+        'status'  => 404
+      );
+      return false;
+    }
+    if(!isset($_SERVER['HTTP_ORIGIN']) || !in_array($_SERVER['HTTP_ORIGIN'], $this->whiteListedDomainOrigin)){
       $this->response['error'] = array(
         'message' => 'Invalid Domain!',
         'status'  => 404
