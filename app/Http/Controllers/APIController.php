@@ -36,7 +36,11 @@ class APIController extends Controller
   );
 
   protected $whiteListedDomain = array(
-    'https://payhiram.ph', 'com.payhiram', 'https://www.payhiram.ph'
+    'https://payhiram.ph/',
+    'https://www.payhiram.ph/',
+    'http://www.payhiram.ph/',
+    'http://payhiram.ph/',
+    'com.payhiram'
   );
 
   protected $notRequired = array();
