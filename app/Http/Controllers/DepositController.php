@@ -15,6 +15,9 @@ class DepositController extends APIController
     public $emailClass = 'App\Http\Controllers\EmailController';
     
     function __construct(){
+      if($this->checkAuthenticatedUser() == false){
+        return $this->response();
+      }
       $this->model = new Deposit();
       $this->localization();
       $this->notRequired =  array(

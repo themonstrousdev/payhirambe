@@ -29,6 +29,9 @@ class RequestMoneyController extends APIController
     public $requestData = null;
     public $chargeData = null;
     function __construct(){
+      if($this->checkAuthenticatedUser() == false){
+        return $this->response();
+      }
       $this->localization();
     	$this->model = new RequestMoney();
       $this->notRequired = array(

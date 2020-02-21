@@ -8,6 +8,9 @@ use Carbon\Carbon;
 class LedgerController extends APIController
 {
     function __construct(){
+      if($this->checkAuthenticatedUser() == false){
+        return $this->response();
+      }
       $this->localization();
       $this->model = new Ledger();
     }

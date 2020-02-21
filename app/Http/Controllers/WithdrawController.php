@@ -15,6 +15,9 @@ class WithdrawController extends APIController
   public $notificationClass = 'App\Http\Controllers\NotificationSettingController';
   
   function __construct(){
+    if($this->checkAuthenticatedUser() == false){
+      return $this->response();
+    }
     $this->localization();
     $this->model = new Withdraw();
   }

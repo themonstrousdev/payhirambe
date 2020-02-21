@@ -20,6 +20,9 @@ class MessengerGroupController extends APIController
     public $requestPeerClass = 'App\Http\Controllers\RequestPeerController';
     public $messengerMessagesClass = 'Increment\Messenger\Http\MessengerMessageController';
     function __construct(){
+      if($this->checkAuthenticatedUser() == false){
+        return $this->response();
+      }
       $this->model = new MessengerGroup();
       $this->localization();
     }

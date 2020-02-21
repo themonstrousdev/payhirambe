@@ -13,6 +13,9 @@ class InvestmentController extends APIController
     public $ledgerClass = 'App\Http\Controllers\LedgerController';
     public $notificationClass = 'App\Http\Controllers\NotificationSettingController';
     function __construct(){
+      if($this->checkAuthenticatedUser() == false){
+        return $this->response();
+      }
       $this->model = new Investment();
       $this->notRequired = array(
         'message'
