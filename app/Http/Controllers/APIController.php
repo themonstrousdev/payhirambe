@@ -40,6 +40,7 @@ class APIController extends Controller
     'https://www.payhiram.ph/',
     'http://www.payhiram.ph/',
     'http://payhiram.ph/',
+    'http://localhost:8001/',
     'com.payhiram'
   );
 
@@ -48,7 +49,8 @@ class APIController extends Controller
     'https://www.payhiram.ph',
     'http://www.payhiram.ph',
     'http://payhiram.ph',
-    'com.payhiram'
+    'com.payhiram',
+    'http://localhost:8001'
   );
 
   protected $notRequired = array();
