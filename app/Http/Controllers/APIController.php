@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuthExceptions\JWTException;
 use Carbon\Carbon;
+use App\UserAuth;
+use Increment\Account\Models\Account;
+use App\LoginLogger;
+use App\Jobs\Email;
+
 class APIController extends Controller
 {
   /*
@@ -39,9 +44,30 @@ class APIController extends Controller
   protected $singleImageFileUpload = array();
   protected $validation = array();
 
+
+  public function checkAuthenticatedUser(){
+    $this->middleware('jwt.auth', ['except' => ['authenticate']]);
+    $users = UserAuth::all();
+    try {
+      if (! $user = JWTAuth::parseToken()->authenticate()) {
+        return response()->json(['user_not_found'], 404);
+      }
+    } catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+      return response()->json(['token_expired'], $e->getStatusCode());
+    } catch (Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+      return response()->json(['token_invalid'], $e->getStatusCode());
+    } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
+      return response()->json(['token_absent'], $e->getStatusCode());
+    }
+
+     // the token is valid and we have found the user via the sub claim
+    return response()->json($user);
+  }
+
   public function test()
   {
-    return "Welcome to Talk Fluent Controller!";
+    $this->checkAuthenticatedUser();
+    return "Welcome to ".env('APP_NAME')." Controller!";
   }
 
   public function response()
