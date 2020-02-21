@@ -12,14 +12,16 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuthExceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Carbon\Carbon;
 class APIController extends Controller
 {
   /*
     Author: Kennette Canales
     Version: 1.0
-    Company: Cuverr
-    Website: www.cuverr.com
+    Company: Payhiram
+    Website: www.payhiram.ph
   */
   protected $model = NULL;
   protected $foreignTable = [];
@@ -33,15 +35,56 @@ class APIController extends Controller
       "timezone" => 'Asia/Manila'
   );
 
+  protected $whiteListedDomain = array(
+    'payhiram.ph', 'com.payhiram'
+  );
+
   protected $notRequired = array();
   protected $responseType = 'json'; 
   protected $rawRequest = null;
   protected $singleImageFileUpload = array();
   protected $validation = array();
 
+  public function checkAuthenticatedUser()
+  {
+    if(!in_array($_SERVER['HTTP_HOST'], $this->whiteListedDomain)){
+      $this->response['error'] = array(
+        'message' => 'Invalid Domain!',
+        'status'  => 404
+      );
+      return false;
+    }
+    try {
+      $user = JWTAuth::parseToken()->authenticate();
+      return true;
+    } catch (TokenExpiredException $e) {
+      $this->response['error'] = array(
+        'message' => 'Invalid Credentials',
+        'status'  => $e->getStatusCode()
+      );
+      return false;
+    } catch (TokenInvalidException $e) {
+      $this->response['error'] = array(
+        'message' => 'Invalid Credentials',
+        'status'  => $e->getStatusCode()
+      );
+      return false;
+
+    } catch (JWTException $e) {
+      $this->response['error'] = array(
+        'message' => 'Invalid Credentials',
+        'status'  => $e->getStatusCode()
+      );
+      return false;
+    }
+
+    // the token is valid and we have found the user via the sub claim
+    return true;
+  }
+
   public function test()
   {
-    return "Welcome to Talk Fluent Controller!";
+    return "Welcome to ".env('APP_NAME')." Controller!";
   }
 
   public function response()
@@ -55,7 +98,10 @@ class APIController extends Controller
   }
 
   public function create(Request $request)
-  {
+  { 
+    if($this->checkAuthenticatedUser() == false){
+      return $this->response();
+    }
     $this->rawRequest = $request;
     $this->insertDB($request->all());
     return $this->response();
@@ -64,6 +110,9 @@ class APIController extends Controller
   public function retrieve(Request $request)
   {
     $this->rawRequest = $request;
+    if($this->checkAuthenticatedUser() == false){
+      return $this->response();
+    }
     $this->retrieveDB($request->all());
     return $this->response();
   }
@@ -71,6 +120,9 @@ class APIController extends Controller
   public function update(Request $request)
   {
     $this->rawRequest = $request;
+    if($this->checkAuthenticatedUser() == false){
+      return $this->response();
+    }
     if ($request->hasFile('image_file')){
     }
     else{
@@ -81,12 +133,18 @@ class APIController extends Controller
 
   public function delete(Request $request)
   {
+    if($this->checkAuthenticatedUser() == false){
+      return $this->response();
+    }
     $this->deleteDB($request->all());
     return $this->response();
   }
 
   public function insertDB($request)
   {
+    if($this->checkAuthenticatedUser() == false){
+      return $this->response();
+    }
     $tableColumns = $this->model->getTableColumns();
     $this->tableColumns = $tableColumns;
     if(!$this->isValid($request, "create")){
@@ -243,6 +301,9 @@ class APIController extends Controller
   }
   public function retrieveDB($request)
   {
+      if($this->checkAuthenticatedUser() == false){
+        return $this->response();
+      }
       $this->localization();
       $tableName = $this->model->getTable();
       $singularTableName = str_singular($tableName);
@@ -323,6 +384,9 @@ class APIController extends Controller
 
   public function updateDB($request, $noFile = false)
   {
+    if($this->checkAuthenticatedUser() == false){
+      return $this->response();
+    }
     $responseType = isset($request['response_type']) ? $request['response_type'] : 'json';
       $tableColumns = $this->model->getTableColumns();
       $this->tableColumns = $tableColumns;
@@ -435,6 +499,9 @@ class APIController extends Controller
 
   public function deleteDB($request)
   {
+    if($this->checkAuthenticatedUser() == false){
+      return $this->response();
+    }
     $responseType = isset($request['response_type']) ? $request['response_type'] : 'json';
     $validator = Validator::make($request, ["id" => "required"]);
     if ($validator->fails()) {
