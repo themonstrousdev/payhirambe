@@ -161,10 +161,12 @@ class APIController extends Controller
     return $this->response();
   }
 
-  public function insertDB($request)
+  public function insertDB($request, $flag = false)
   {
-    if($this->checkAuthenticatedUser() == false){
-      return $this->response();
+    if($flag == false){
+      if($this->checkAuthenticatedUser() == false){
+        return $this->response();
+      }
     }
     $tableColumns = $this->model->getTableColumns();
     $this->tableColumns = $tableColumns;
