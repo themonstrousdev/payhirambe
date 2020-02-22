@@ -12,24 +12,35 @@ class RequestValidationController extends APIController
     $this->model = new RequestValidation();
   }
 
-  public function getByParams($column, $value){
-    $requirements = array(
-      array(
-        'payload' => 'id',
-        'title'   => 'Receiver\'s ID',
-        'validations' => null
-      ),
-      array(
-        'payload' => 'photo',
-        'title'   => 'Receiver\'s Photo',
-        'validations' => null
-      ),
-      array(
-        'payload' => 'signature',
-        'title'   => 'Receiver\'s Signature',
-        'validations' => null
-      )
-    );
+  public function getByParams($column, $value, $type = 1){
+    $requirements = array();
+    if(intval($type) == 1){
+      $requirements = array(
+        array(
+          'payload' => 'id',
+          'title'   => 'Receiver\'s ID',
+          'validations' => null
+        ),
+        array(
+          'payload' => 'photo',
+          'title'   => 'Receiver\'s Picture',
+          'validations' => null
+        ),
+        array(
+          'payload' => 'signature',
+          'title'   => 'Receiver\'s Signature',
+          'validations' => null
+        )
+      );
+    }else if(intval($type) == 4){
+      $requirements = array(
+        array(
+          'payload' => 'photo',
+          'title'   => 'Picture',
+          'validations' => null
+        )
+      );
+    }
     $i = 0;
     $flag = true;
     $transferStatus = 'approved';

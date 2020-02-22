@@ -14,18 +14,20 @@ class OtpEmail extends Mailable
     public $date;
     public $otpCode;
     public $text;
+    public $subject;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($user, $otpCode, $text, $timezone)
+    public function __construct($subject, $user, $otpCode, $text, $timezone)
     {
         $this->user = $user;
         $this->otpCode = $otpCode;
         $this->text = $text;
         $this->date = Carbon::now()->copy()->tz($timezone)->format('F j, Y h:i A');
+        $this->subject = $subject;
     }
 
     /**
@@ -36,6 +38,6 @@ class OtpEmail extends Mailable
 
     public function build()
     {
-        return $this->subject('OTP Notification')->from(env('MAIL_FROM_ADDRESS'), env('APP_NAME'))->view('email.otpemail');
+        return $this->subject($this->subject)->from(env('MAIL_FROM_ADDRESS'), env('APP_NAME'))->view('email.otpemail');
     }
 }

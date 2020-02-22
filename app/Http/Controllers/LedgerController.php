@@ -8,6 +8,9 @@ use Carbon\Carbon;
 class LedgerController extends APIController
 {
     function __construct(){
+      if($this->checkAuthenticatedUser() == false){
+        return $this->response();
+      }
       $this->localization();
       $this->model = new Ledger();
     }
@@ -21,8 +24,10 @@ class LedgerController extends APIController
         'available' => $this->available(),
         'approved' => app('App\Http\Controllers\InvestmentController')->approved(),
         'total_requests' => app('App\Http\Controllers\RequestMoneyController')->total(),
+        'personal_total_requests' => app('App\Http\Controllers\RequestMoneyController')->getTotalActiveRequest($accountId),
         'request_status' => app('App\Http\Controllers\RequestMoneyController')->requestStatus($accountId),
-        'withdrawal'  => app($this->withdrawalClass)->getByParams('account_id', $accountId)
+        'withdrawal'  => app($this->withdrawalClass)->getByParams('account_id', $accountId),
+        'currency' => 'PHP'
       );
     }
 

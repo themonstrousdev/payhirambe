@@ -20,6 +20,9 @@ class MessengerGroupController extends APIController
     public $requestPeerClass = 'App\Http\Controllers\RequestPeerController';
     public $messengerMessagesClass = 'Increment\Messenger\Http\MessengerMessageController';
     function __construct(){
+      if($this->checkAuthenticatedUser() == false){
+        return $this->response();
+      }
       $this->model = new MessengerGroup();
       $this->localization();
     }
@@ -136,8 +139,9 @@ class MessengerGroupController extends APIController
       if(sizeof($result) > 0){
         $result = $result[0];
         $messengerGroup = $result;
+        $request = app($this->requestClass)->getByParams('id', $result['payload']);
         $messengerGroup['created_at_human'] = Carbon::createFromFormat('Y-m-d H:i:s', $result['updated_at'] != null ?  $result['updated_at'] : $result['created_at'])->copy()->tz($this->response['timezone'])->format('F j, Y h:i A');
-        $messengerGroup['validations'] = app($this->requestValidationClass)->getByParams('request_id', $result['payload']);
+        $messengerGroup['validations'] = app($this->requestValidationClass)->getByParams('request_id', $result['payload'], $request['type']);
         $messengerGroup['rating'] = app($this->ratingClass)->getByParams($accountId, 'request', $result['payload']);
         $messengerGroup['message_update'] = $update;
         Notifications::dispatch('message_group', $messengerGroup->toArray());
@@ -162,8 +166,8 @@ class MessengerGroupController extends APIController
       }else{
         $result['title'] = $this->retrieveAccountDetails($result['account_id']);
       }
-      $result['validations'] = app($this->requestValidationClass)->getByParams('request_id', $result['payload']);
       $result['request'] = app($this->requestClass)->getByParams('id', $result['payload']);
+      $result['validations'] = app($this->requestValidationClass)->getByParams('request_id', $result['payload'], $result['request']['type']);
       $result['peer'] = app($this->requestPeerClass)->getApprovedByParams('request_id', $result['payload']);
       $result['thread'] = $title;
       $result['rating'] = app($this->ratingClass)->getByParams($accountId, 'request', $result['payload']);

@@ -14,6 +14,9 @@ class GuarantorController extends APIController
   public $notificationClass = 'Increment\Common\Notification\Http\NotificationController';
 
   function __construct(){
+    if($this->checkAuthenticatedUser() == false){
+      return $this->response();
+    }
     $this->model = new GuarantorModel();
   }
 

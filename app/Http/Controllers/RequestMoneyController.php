@@ -29,6 +29,9 @@ class RequestMoneyController extends APIController
     public $requestData = null;
     public $chargeData = null;
     function __construct(){
+      if($this->checkAuthenticatedUser() == false){
+        return $this->response();
+      }
       $this->localization();
     	$this->model = new RequestMoney();
       $this->notRequired = array(
@@ -136,8 +139,8 @@ class RequestMoneyController extends APIController
         return false;
       }
       $type = intval($this->requestData['type']);
-      if($type == 1 || $type == 2){
-        $description = ($type == 1) ? 'money transfer request' : 'withdrawal request';
+      if($type == 1 || $type == 2 || $type == 4){
+        $description = ($type == 1 || $type == 4) ? 'money transfer request' : 'withdrawal request';
         // Credit request amount from requestor
         $this->addToLedger(array(
           'account_id'  => $this->requestData['account_id'],
@@ -431,6 +434,11 @@ class RequestMoneyController extends APIController
 
     public function getTotalRequest($accountId){
       $result = RequestMoney::where('account_id', '=', $accountId)->where('type', '<=', 2)->where('status', '!=', 2)->sum('amount');
+      return doubleval($result);
+    }
+
+    public function getTotalActiveRequest($accountId){
+      $result = RequestMoney::where('account_id', '=', $accountId)->where('status', '!', 2)->sum('amount');
       return doubleval($result);
     }
 
