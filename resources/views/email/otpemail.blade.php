@@ -1,7 +1,7 @@
 @component('email.header')
 @endcomponent
 <span class="text">
-    <h3>NEW OTP CODE</h3>
+    <h3>{{$subject}}</h3>
     Hello {{$user->username}}!
     <br>
     <br>
