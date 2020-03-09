@@ -28,7 +28,7 @@ class InvestorLocationController extends APIController
 
   public function getByParams($column, $value){
     $result = InvestorLocation::where($column, $value)->get();
-    // echo json_encode($result);
+    //echo json_encode($result);
     $response = null;
     if(sizeof($result) > 0){
       $i = 0;

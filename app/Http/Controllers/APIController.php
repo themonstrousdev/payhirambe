@@ -15,6 +15,11 @@ use Tymon\JWTAuthExceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Carbon\Carbon;
+use App\UserAuth;
+use Increment\Account\Models\Account;
+use App\LoginLogger;
+use App\Jobs\Email;
+
 class APIController extends Controller
 {
   /*
@@ -61,6 +66,7 @@ class APIController extends Controller
 
   public function checkAuthenticatedUser($flag = false)
   {
+    if(env('TEST') == false){
     if($flag == true){
       if(isset($_SERVER['HTTP_REFERER']) && !in_array($_SERVER['HTTP_REFERER'], $this->whiteListedDomain)){
         $this->response['error'] = array(
@@ -75,6 +81,23 @@ class APIController extends Controller
           'status'  => 404
         );
         return false;
+      }
+    }
+    try {
+      $user = JWTAuth::parseToken()->authenticate();
+      return true;
+    } catch (TokenExpiredException $e) {
+      $this->response['error'] = array(
+        'message' => 'Invalid Credentials',
+        'status'  => $e->getStatusCode()
+      );
+      return false;
+    } catch (TokenInvalidException $e) {
+      $this->response['error'] = array(
+        'message' => 'Invalid Credentials',
+        'status'  => $e->getStatusCode()
+      );
+      return false;
       }      
     }else{
       if(isset($_SERVER['HTTP_REFERER']) && !in_array($_SERVER['HTTP_REFERER'], $this->whiteListedDomain)){
