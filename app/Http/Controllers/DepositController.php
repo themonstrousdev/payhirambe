@@ -15,9 +15,6 @@ class DepositController extends APIController
     public $emailClass = 'App\Http\Controllers\EmailController';
     
     function __construct(){
-      if($this->checkAuthenticatedUser() == false){
-        return $this->response();
-      }
       $this->model = new Deposit();
       $this->localization();
       $this->notRequired =  array(
@@ -27,6 +24,9 @@ class DepositController extends APIController
     }
 
     public function retrieve(Request $request){
+      if($this->checkAuthenticatedUser() == false){
+        return $this->response();
+      }
       $data = $request->all();
       $this->retrieveDB($data);
       $result = $this->response['data'];
@@ -63,6 +63,9 @@ class DepositController extends APIController
     }
 
     public function create(Request $request){
+      if($this->checkAuthenticatedUser() == false){
+        return $this->response();
+      }
       $data = $request->all();
       $data['code'] = $this->generateCode();
       $this->model = new Deposit();

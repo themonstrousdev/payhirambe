@@ -64,9 +64,10 @@ class APIController extends Controller
   protected $singleImageFileUpload = array();
   protected $validation = array();
 
-  public function checkAuthenticatedUser()
+  public function checkAuthenticatedUser($flag = false)
   {
     if(env('TEST') == false){
+    if($flag == true){
       if(isset($_SERVER['HTTP_REFERER']) && !in_array($_SERVER['HTTP_REFERER'], $this->whiteListedDomain)){
         $this->response['error'] = array(
           'message' => 'Invalid Domain!',
@@ -97,15 +98,46 @@ class APIController extends Controller
         'status'  => $e->getStatusCode()
       );
       return false;
+      }      
+    }else{
+      if(isset($_SERVER['HTTP_REFERER']) && !in_array($_SERVER['HTTP_REFERER'], $this->whiteListedDomain)){
+        $this->response['error'] = array(
+          'message' => 'Invalid Domain!',
+          'status'  => 404
+        );
+        return false;
+      }
+      if(isset($_SERVER['HTTP_ORIGIN']) && !in_array($_SERVER['HTTP_ORIGIN'], $this->whiteListedDomainOrigin)){
+        $this->response['error'] = array(
+          'message' => 'Invalid Domain!',
+          'status'  => 404
+        );
+        return false;
+      }
+      try {
+        $user = JWTAuth::parseToken()->authenticate();
+        return true;
+      } catch (TokenExpiredException $e) {
+        $this->response['error'] = array(
+          'message' => 'Invalid Credentials',
+          'status'  => $e->getStatusCode()
+        );
+        return false;
+      } catch (TokenInvalidException $e) {
+        $this->response['error'] = array(
+          'message' => 'Invalid Credentials',
+          'status'  => $e->getStatusCode()
+        );
+        return false;
 
-    } catch (JWTException $e) {
-      $this->response['error'] = array(
-        'message' => 'Invalid Credentials',
-        'status'  => $e->getStatusCode()
-      );
-      return false;
+      } catch (JWTException $e) {
+        $this->response['error'] = array(
+          'message' => 'Invalid Credentials',
+          'status'  => $e->getStatusCode()
+        );
+        return false;
+      }
     }
-
     // the token is valid and we have found the user via the sub claim
     return true;
   }
@@ -168,9 +200,9 @@ class APIController extends Controller
     return $this->response();
   }
 
-  public function insertDB($request)
+  public function insertDB($request, $flag = false)
   {
-    if($this->checkAuthenticatedUser() == false){
+    if($this->checkAuthenticatedUser($flag) == false){
       return $this->response();
     }
     $tableColumns = $this->model->getTableColumns();
