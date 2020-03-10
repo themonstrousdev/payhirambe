@@ -4,9 +4,9 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class AccountCoupon extends APIModel
+class CouponAccount extends APIModel
 {
-    protected $table = 'account_coupons';
+    protected $table = 'coupon_accounts';
     protected $fillable = ['id', 'account_id','coupon_id', 'payload', 'payload_value'];
 
 	public function getAccountIdAttribute($value){

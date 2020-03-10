@@ -67,37 +67,37 @@ class APIController extends Controller
   public function checkAuthenticatedUser($flag = false)
   {
     if(env('TEST') == false){
-    if($flag == true){
-      if(isset($_SERVER['HTTP_REFERER']) && !in_array($_SERVER['HTTP_REFERER'], $this->whiteListedDomain)){
+      if($flag == true){
+        if(isset($_SERVER['HTTP_REFERER']) && !in_array($_SERVER['HTTP_REFERER'], $this->whiteListedDomain)){
+          $this->response['error'] = array(
+            'message' => 'Invalid Domain!',
+            'status'  => 404
+          );
+          return false;
+        }
+        if(isset($_SERVER['HTTP_ORIGIN']) && !in_array($_SERVER['HTTP_ORIGIN'], $this->whiteListedDomainOrigin)){
+          $this->response['error'] = array(
+            'message' => 'Invalid Domain!',
+            'status'  => 404
+          );
+          return false;
+        }
+      }
+      try {
+        $user = JWTAuth::parseToken()->authenticate();
+        return true;
+      } catch (TokenExpiredException $e) {
         $this->response['error'] = array(
-          'message' => 'Invalid Domain!',
-          'status'  => 404
+          'message' => 'Invalid Credentials',
+          'status'  => $e->getStatusCode()
         );
         return false;
-      }
-      if(isset($_SERVER['HTTP_ORIGIN']) && !in_array($_SERVER['HTTP_ORIGIN'], $this->whiteListedDomainOrigin)){
+      } catch (TokenInvalidException $e) {
         $this->response['error'] = array(
-          'message' => 'Invalid Domain!',
-          'status'  => 404
+          'message' => 'Invalid Credentials',
+          'status'  => $e->getStatusCode()
         );
         return false;
-      }
-    }
-    try {
-      $user = JWTAuth::parseToken()->authenticate();
-      return true;
-    } catch (TokenExpiredException $e) {
-      $this->response['error'] = array(
-        'message' => 'Invalid Credentials',
-        'status'  => $e->getStatusCode()
-      );
-      return false;
-    } catch (TokenInvalidException $e) {
-      $this->response['error'] = array(
-        'message' => 'Invalid Credentials',
-        'status'  => $e->getStatusCode()
-      );
-      return false;
       }      
     }else{
       if(isset($_SERVER['HTTP_REFERER']) && !in_array($_SERVER['HTTP_REFERER'], $this->whiteListedDomain)){

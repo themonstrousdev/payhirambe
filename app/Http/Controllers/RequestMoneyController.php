@@ -26,6 +26,7 @@ class RequestMoneyController extends APIController
     public $requestPeerClass = 'App\Http\Controllers\RequestPeerController';
     public $ledgerClass = 'App\Http\Controllers\LedgerController';
     public $messengerGroupClass = 'App\Http\Controllers\MessengerGroupController';
+    public $couponAccountClass = 'App\Http\Controllers\CouponAccountController';
     public $requestData = null;
     public $chargeData = null;
     function __construct(){
@@ -72,6 +73,14 @@ class RequestMoneyController extends APIController
         $data['location']['request_id'] = $this->response['data'];
         $data['location']['created_at'] = Carbon::now();
         app($this->requestLocationClass)->insert($data['location']);
+        $couponData = array(
+          'account_id'  => $data['account_id'],
+          'coupon_id'   => $data['coupon']['id'],
+          'payload'     => 'request',
+          'payload_value' => $this->response['data'],
+          'created_at'  => Carbon::now()
+        );
+        app($this->couponAccountClass)->insert($couponData);
       }
       $this->response['data'] = $data['code'];
     	return $this->response();
@@ -351,6 +360,7 @@ class RequestMoneyController extends APIController
             $result[$i]['pulling_percentage'] = intval(($result[$i]['pulling'] /  $result[$i]['initial_amount']) * 100);
             $result[$i]['billing_per_month_human'] = $this->billingPerMonth($result[$i]['billing_per_month']);
             $result[$i]['bookmark'] = (app($this->bookmarkClass)->checkIfExist($data['account_id'], $result[$i]['id']) == null) ? false : true;
+            $result[$i]['coupon'] = app($this->couponAccountClass)->getByAccountIdAndPayload($result[$i]['account_id'], 'request',  $result[$i]['id']);
             $response[] = $result[$i];
           }  
           $i++;

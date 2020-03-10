@@ -5,26 +5,51 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Coupon;
 use Carbon\Carbon;
-
 class CouponController extends APIController
 {
-    function __construct(){
-      if($this->checkAuthenticatedUser() == false){
-        return $this->response();
-      }
-      $this->model = new Coupon();
-      $this->localization();
 
-    public function create(Request $request){
-      $data = $request->all();
-      $data['code'] = $this->generateCode();
-      $this->model = new Coupon();
-      $this->insertDB($data);
-      if($this->response['data'] > 0){
-        $deposit = Deposit::where('id', '=', $this->response['data'])->get();
-        $result = $deposit[0];
-        app($this->emailClass)->deposit($data['account_id'], $result, 'Payment Confirmation:'.$result['code']);
+  public $CouponAccountController = 'App\Http\Controllers\CouponAccountController';
+  
+  function __construct(){
+    $this->localization();
+    $this->model = new Coupon();
+  }
+
+  public function retrieveByValidation(Request $request){
+    $data = $request->all();
+    $this->model = new Coupon();
+    $this->retrieveDB($data);
+    $result = $this->response['data'];
+    if(sizeof($result) > 0){
+      $startDate = Carbon::createFromFormat('Y-m-d H:i:s', $result[0]['start']);
+      $expiryDate = Carbon::createFromFormat('Y-m-d H:i:s', $result[0]['end']);
+          
+      $currentDate = Carbon::now();
+      $diffStart = $currentDate->diffInSeconds($startDate, false);
+      $diffEnd = $currentDate->diffInSeconds($expiryDate, false);
+      if($diffStart < 0 && $diffEnd >= 0){
+        $id = $result[0]['id'];
+        $accountId = $data['account_id'];
+        $size = app($this->CouponAccountController)->getTotalSize($id);
+        $limit = intval($result[0]['limit']);
+        if(app($this->CouponAccountController)->checkIfExist($id, $accountId) > 0){
+          $this->response['data'] = null;
+          $this->response['error'] = 'You already used the coupon!';
+        }else if($limit <= $size){
+          $this->response['data'] = null;
+          $this->response['error'] = 'Coupon was already used!';
+        }else{
+          $this->response['data'] = $result[0];
+          $this->response['error'] = null;
+        }
+      }else{
+        $this->response['data'] = null;
+        $this->response['error'] = 'Expired Coupon Code';
       }
-      return $this->response();
-    }  
+    }else{
+      $this->response['data'] = null;
+      $this->response['error'] = 'Invalid Coupon Code';
+    }
+    return $this->response();
+  }
 }
