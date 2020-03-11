@@ -98,6 +98,15 @@ class RequestMoneyController extends APIController
         $result['account'] = $this->retrieveAccountDetails($result['account_id']);
         $peerApproved = app($this->requestPeerClass)->getApprovedByParams('request_id', $result['id']);
         if($peerApproved != null){
+          // check discount coupons
+          $coupon = app($this->couponAccountClass)->getByAccountIdAndPayload($result['account_id'], 'request', $result['id']);
+          if($coupon != null){
+            if($coupon['type'] == 'percentage'){
+              $peerApproved['charge'] = $peerApproved['charge'] * (1 - (intval($coupon['amount']) / 100));
+            }else{
+              $peerApproved['charge'] = $peerApproved['charge'] - intval($coupon['amount']);
+            }
+          }
           if($result['account_id'] != $data['account_id'] && $peerApproved['account_id'] != $data['account_id']){
             return response()->json(array(
               'error' => 'Invalid accessed!',
