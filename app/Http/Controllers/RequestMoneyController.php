@@ -36,7 +36,7 @@ class RequestMoneyController extends APIController
       $this->localization();
     	$this->model = new RequestMoney();
       $this->notRequired = array(
-        'approved_date', 'months_payable', 'interest', 'reason', 'billing_per_month'
+        'approved_date', 'months_payable', 'interest', 'reason', 'billing_per_month', 'max_charge'
       );
     }
 

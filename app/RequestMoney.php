@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class RequestMoney extends APIModel
 {
   protected $table = 'requests';
-  protected $fillable = ['account_id', 'code', 'type', 'amount', 'months_payable', 'interest', 'reason', 'needed_on', 'billing_per_month', 'status', 'approved_status'];
+  protected $fillable = ['account_id', 'code', 'type', 'amount', 'months_payable', 'interest', 'reason', 'needed_on', 'billing_per_month', 'status', 'approved_status', 'max_charge'];
 
   public function getAccountIdAttribute($value){
     return intval($value);
