@@ -73,14 +73,16 @@ class RequestMoneyController extends APIController
         $data['location']['request_id'] = $this->response['data'];
         $data['location']['created_at'] = Carbon::now();
         app($this->requestLocationClass)->insert($data['location']);
-        $couponData = array(
-          'account_id'  => $data['account_id'],
-          'coupon_id'   => $data['coupon']['id'],
-          'payload'     => 'request',
-          'payload_value' => $this->response['data'],
-          'created_at'  => Carbon::now()
-        );
-        app($this->couponAccountClass)->insert($couponData);
+        if($data['coupon'] != null){
+          $couponData = array(
+            'account_id'  => $data['account_id'],
+            'coupon_id'   => $data['coupon']['id'],
+            'payload'     => 'request',
+            'payload_value' => $this->response['data'],
+            'created_at'  => Carbon::now()
+          );
+          app($this->couponAccountClass)->insert($couponData);
+        }
       }
       $this->response['data'] = $data['code'];
     	return $this->response();
