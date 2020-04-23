@@ -32,6 +32,6 @@ class ChangedPassword extends Mailable
 
     public function build()
     {
-        return $this->subject('Changed password notifitcation')->from(env('MAIL_FROM_ADDRESS'), env('APP_NAME'))->view('email.changedpasswordnotif');
+        return $this->subject('ACCOUNT LOCKED')->from(env('MAIL_FROM_ADDRESS'), env('APP_NAME'))->view('email.changedpasswordnotif');
     }
 }
